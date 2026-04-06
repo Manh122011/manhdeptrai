@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Xiaoquan-MVU Studio v4.1</title>
+<meta name="description" content="Đưa thanh siêu trạng thái MVU vào thẻ nhân vật chỉ bằng một cú nhấp chuột, được tạo riêng cho người mới chưa biết lập trình.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #050810;
+  --surface: #0a0e1a;
+  --surface2: #0f1525;
+  --surface3: #141b2d;
+  --border: #1e2a45;
+  --border2: #243050;
+  --pri: #4f8fff;
+  --pri-glow: rgba(79,143,255,0.15);
+  --pri-glow2: rgba(79,143,255,0.08);
+  --sec: #a855f7;
+  --sec-glow: rgba(168,85,247,0.15);
+  --acc: #06d6a0;
+  --warn: #f59e0b;
+  --err:#ef4444;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;
+  --shadow-md:0 8px 24px rgba(0,0,0,.3);
+  --transition-fast:.15s ease;--transition-normal:.25s ease;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:24px 16px 48px;display:flex;flex-direction:column;align-items:center;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.container{width:100%;max-width:860px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:border-color .3s}
+.card:hover{border-color:var(--border2)}
+.card-header{display:flex;align-items:center;gap:12px;padding:16px 20px;user-select:none}
+.card-header.collapsible{cursor:pointer}
+.card-header.collapsible:hover{background:var(--pri-glow2)}
+.step-num{width:28px;height:28px;border-radius:var(--radius-sm);background:var(--pri-glow);border:1px solid rgba(79,143,255,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--pri);flex-shrink:0}
+.step-num.green{background:rgba(6,214,160,.1);border-color:rgba(6,214,160,.3);color:var(--acc)}
+.step-num.purple{background:var(--sec-glow);border-color:rgba(168,85,247,.3);color:var(--sec)}
+.step-num.orange{background:rgba(245,158,11,.1);border-color:rgba(245,158,11,.3);color:var(--warn)}
+.card-title-group{flex:1}
+.card-title{font-size:14px;font-weight:600}
+.card-sub{font-size:11px;color:var(--text3);margin-top:2px}
+.card-body{padding:0 20px 20px}
+.card-divider{height:1px;background:var(--border);margin:0 20px 20px}
+.style-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:16px}
+.style-card{border:2px solid var(--border2);border-radius:14px;overflow:hidden;cursor:pointer;transition:.3s;background:var(--surface2);position:relative}
+.style-card:hover{border-color:rgba(79,143,255,.4);transform:translateY(-3px);box-shadow:var(--shadow-md)}
+.style-card.active{border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-glow),0 8px 24px rgba(79,143,255,.15)}
+.style-card.active::after{content:'✓';position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:50%;background:var(--pri);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(79,143,255,.5);z-index:2}
+.style-preview{height:160px;padding:12px;display:flex;flex-direction:column;gap:4px;overflow:hidden;position:relative}
+.style-preview.minimal{background:linear-gradient(160deg,#0d1117,#161b22);padding:14px}
+.style-preview.minimal .sp-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.style-preview.minimal .sp-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#58a6ff,#79c0ff);border:1.5px solid rgba(88,166,255,.4);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+.style-preview.minimal .sp-name{font-size:10px;color:#c9d1d9;font-weight:600}
+.style-preview.minimal .sp-badge{font-size:7px;background:rgba(88,166,255,.15);color:#58a6ff;padding:1px 5px;border-radius:8px;border:1px solid rgba(88,166,255,.3);margin-left:auto}
+.style-preview.minimal .sp-stat-row{display:flex;align-items:center;gap:6px;margin-bottom:4px}
+.style-preview.minimal .sp-stat-label{font-size:7px;color:#8b949e;width:28px}
+.style-preview.minimal .sp-bar-wrap{flex:1;height:5px;border-radius:3px;background:rgba(255,255,255,.06);overflow:hidden}
+.style-preview.minimal .sp-bar-fill{height:100%;border-radius:3px}
+.style-preview.minimal .sp-bar-fill.blue{background:linear-gradient(90deg,#58a6ff,#79c0ff);width:65%}
+.style-preview.minimal .sp-bar-fill.green{background:linear-gradient(90deg,#3fb950,#56d364);width:40%}
+.style-preview.minimal .sp-bar-fill.pink{background:linear-gradient(90deg,#f778ba,#db61a2);width:78%}
+.style-preview.minimal .sp-bar-val{font-size:7px;color:#8b949e;width:22px;text-align:right}
+.style-preview.minimal .sp-items{display:flex;gap:3px;margin-top:6px;flex-wrap:wrap}
+.style-preview.minimal .sp-item{font-size:6px;padding:1px 4px;border-radius:4px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:#8b949e}
+.style-preview.ancient{background:linear-gradient(180deg,#1a161c,#100e12);border-bottom:1.5px solid rgba(227,193,147,.25);font-family:serif;padding:10px 14px}
+.style-preview.ancient .sp-title{font-size:12px;color:#e3c193;text-align:center;letter-spacing:5px;margin-bottom:6px;text-shadow:0 0 10px rgba(227,193,147,.4);font-weight:700}
+.style-preview.ancient .sp-title::before,.style-preview.ancient .sp-title::after{content:'';display:inline-block;width:20px;height:1px;background:rgba(227,193,147,.3);vertical-align:middle;margin:0 6px}
+.style-preview.ancient .sp-divider{height:1px;background:rgba(227,193,147,.12);margin:3px 0}
+.style-preview.ancient .sp-row{display:flex;justify-content:space-between;font-size:7px;padding:2px 4px;color:#a89a8e}
+.style-preview.ancient .sp-val{color:#ede4d7;font-weight:600}
+.style-preview.ancient .sp-tabs{display:flex;gap:3px;margin-top:6px;justify-content:center}
+.style-preview.ancient .sp-tab{font-size:6px;padding:2px 6px;border-radius:3px;color:#a89a8e;border:1px solid rgba(227,193,147,.15)}
+.style-preview.ancient .sp-tab.active{color:#e3c193;background:rgba(227,193,147,.1);border-color:rgba(227,193,147,.3)}
+.style-preview.portrait{background:linear-gradient(160deg,#1e1e24,#101014);padding:10px;gap:5px}
+.style-preview.portrait .sp-topbar{display:flex;justify-content:space-between;align-items:center;padding-bottom:5px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:3px}
+.style-preview.portrait .sp-topbar-title{font-size:8px;color:#ffb7c5;font-weight:700;text-shadow:0 0 8px rgba(255,183,197,.4);letter-spacing:1px}
+.style-preview.portrait .sp-topbar-dot{width:5px;height:5px;border-radius:50%;background:#ffb7c5;box-shadow:0 0 6px rgba(255,183,197,.6)}
+.style-preview.portrait .sp-char-row{display:flex;align-items:center;gap:7px;padding:5px 6px;border-radius:8px;background:rgba(255,255,255,.02);border-left:2px solid var(--row-c,#ffb7c5)}
+.style-preview.portrait .sp-char-av{width:22px;height:30px;border-radius:5px;border:1px solid rgba(255,255,255,.15);flex-shrink:0}
+.style-preview.portrait .sp-char-av.av1{background:linear-gradient(135deg,#ffb7c5,#ff8fa3)}
+.style-preview.portrait .sp-char-av.av2{background:linear-gradient(135deg,#429e73,#6bc599)}
+.style-preview.portrait .sp-char-av.av3{background:linear-gradient(135deg,#b388ff,#d0b0ff)}
+.style-preview.portrait .sp-char-info{flex:1;min-width:0}
+.style-preview.portrait .sp-char-name{font-size:8px;font-weight:700;color:var(--row-c,#ffb7c5);text-shadow:0 0 6px var(--row-c,rgba(255,183,197,.3));margin-bottom:2px}
+.style-preview.portrait .sp-char-bar{height:3px;border-radius:2px;background:rgba(0,0,0,.4);overflow:hidden}
+.style-preview.portrait .sp-char-fill{height:100%;border-radius:2px}
+.style-preview.portrait .sp-char-tag{font-size:5px;color:var(--row-c,#ffb7c5);border:1px solid var(--row-c,rgba(255,183,197,.3));padding:0 3px;border-radius:3px;margin-top:2px;display:inline-block;opacity:.7}
+.style-preview.nurture{background:linear-gradient(160deg,#0a0e1a,#0f0520);padding:10px 12px}
+.style-preview.nurture .sp-n-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.style-preview.nurture .sp-n-title{font-size:9px;color:#c084fc;font-weight:700;text-shadow:0 0 8px rgba(192,132,252,.3)}
+.style-preview.nurture .sp-n-shop{font-size:6px;padding:2px 5px;border-radius:4px;background:rgba(192,132,252,.1);color:#c084fc;border:1px solid rgba(192,132,252,.3)}
+.style-preview.nurture .sp-n-label{font-size:6px;color:#9ca3af;margin-bottom:2px;display:flex;justify-content:space-between}
+.style-preview.nurture .sp-n-bar{height:6px;border-radius:3px;background:rgba(255,255,255,.05);overflow:hidden;margin-bottom:5px;border:1px solid rgba(255,255,255,.04)}
+.style-preview.nurture .sp-n-fill{height:100%;border-radius:3px}
+.style-preview.nurture .sp-n-fill.purple{background:linear-gradient(90deg,#7c3aed,#c084fc);width:35%}
+.style-preview.nurture .sp-n-fill.cyan{background:linear-gradient(90deg,#06b6d4,#67e8f9);width:55%}
+.style-preview.nurture .sp-n-fill.rose{background:linear-gradient(90deg,#e11d48,#fb7185);width:20%}
+.style-preview.nurture .sp-n-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:3px;margin-top:4px}
+.style-preview.nurture .sp-n-stat{text-align:center;padding:3px 0;background:rgba(255,255,255,.02);border-radius:4px;border:1px solid rgba(255,255,255,.04)}
+.style-preview.nurture .sp-n-stat-val{font-size:9px;font-weight:700;color:#e2e8f0}
+.style-preview.nurture .sp-n-stat-name{font-size:5px;color:#6b7280;margin-top:1px}
+.style-info{padding:12px 14px;border-top:1px solid var(--border)}
+.style-name{font-size:13px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:6px}
+.style-desc{font-size:10px;color:var(--text3);margin-top:3px;line-height:1.4}
+.style-badge{font-size:8px;padding:1px 6px;border-radius:8px;background:rgba(168,85,247,.1);color:var(--sec);border:1px solid rgba(168,85,247,.2)}
+.tag-category{margin-bottom:12px;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--surface2)}
+.tag-category-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;cursor:pointer;transition:.2s;user-select:none}
+.tag-category-header:hover{background:var(--pri-glow2)}
+.tag-category-left{display:flex;align-items:center;gap:8px}
+.tag-cat-icon{font-size:16px}
+.tag-cat-name{font-size:13px;font-weight:600;color:var(--text)}
+.tag-cat-count{font-size:10px;color:var(--text3);background:var(--surface3);padding:2px 8px;border-radius:10px}
+.tag-cat-arrow{font-size:10px;color:var(--text3);transition:transform .3s}
+.tag-category.open .tag-cat-arrow{transform:rotate(180deg)}
+.tag-category-body{display:none;padding:8px 14px 14px;flex-wrap:wrap;gap:8px}
+.tag-category.open .tag-category-body{display:flex}
+.preset-tag{background:var(--surface3);border:1px solid var(--border2);color:var(--text3);padding:6px 14px;border-radius:20px;cursor:pointer;font-size:12px;font-weight:500;transition:.2s;user-select:none}
+.preset-tag:hover{border-color:var(--pri);color:var(--pri)}
+.preset-tag.active{background:rgba(79,143,255,.12);border-color:rgba(79,143,255,.5);color:#7ab0ff;font-weight:600}
+.online-widget{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:30px;padding:8px 16px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:600;color:var(--text2);box-shadow:var(--shadow-md);backdrop-filter:blur(10px);z-index:1000;transition:all .3s ease;user-select:none}
+.online-widget:hover{border-color:var(--pri);color:var(--text);transform:translateY(-2px);box-shadow:0 8px 24px rgba(79,143,255,.2)}
+.online-dot{width:8px;height:8px;background-color:var(--acc);border-radius:50%;box-shadow:0 0 8px var(--acc);animation:pulse-dot 2s infinite}
+.online-num{color:var(--text);font-size:14px;font-weight:700;font-family:'Inter','Consolas',monospace}
+@keyframes pulse-dot{0%{transform:scale(.95);box-shadow:0 0 0 0 rgba(6,214,160,.7)}70%{transform:scale(1);box-shadow:0 0 0 6px rgba(6,214,160,0)}100%{transform:scale(.95);box-shadow:0 0 0 0 rgba(6,214,160,0)}}
+.hero{width:100%;max-width:860px;text-align:center;padding:32px 24px 28px;position:relative;z-index:1}
+.hero h1{font-size:clamp(24px,5vw,38px);font-weight:900;line-height:1.15;background:linear-gradient(135deg,#fff 0%,#94b8ff 50%,#c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:12px}
+.hero p{font-size:14px;color:var(--text2);max-width:520px;margin:0 auto;line-height:1.6}
+.hero-line{width:60px;height:2px;background:linear-gradient(90deg,var(--pri),var(--sec));margin:20px auto 0;border-radius:2px}
+.form-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.form-group{flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.form-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px;display:flex;justify-content:space-between;align-items:center;gap:4px}
+input[type=text],input[type=password],input[type=number],select{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:10px;font-family:inherit;font-size:13px;transition:.2s;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-glow);background:var(--surface3)}
+textarea{background:var(--surface2);border:1px solid var(--border2);color:var(--text2);padding:12px 14px;border-radius:10px;font-family:'Consolas',monospace;font-size:12px;width:100%;resize:vertical;line-height:1.6}
+textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-glow)}
+.upload-zone{display:flex;align-items:center;gap:14px;background:var(--surface2);border:2px dashed var(--border2);border-radius:var(--radius-md);padding:16px 18px;transition:.2s;flex-wrap:wrap}
+.upload-zone:hover{border-color:rgba(79,143,255,.5);background:var(--pri-glow2)}
+.upload-zone.dragover{border-color:var(--pri);background:var(--pri-glow);box-shadow:0 0 0 3px var(--pri-glow)}
+.file-btn{background:linear-gradient(135deg,var(--pri),#3b6fd4);color:#fff;padding:8px 18px;border-radius:var(--radius-sm);cursor:pointer;font-weight:600;font-size:13px;box-shadow:0 4px 12px rgba(79,143,255,.3);white-space:nowrap}
+input[type=file]{display:none}
+#card-info{font-size:13px;color:var(--text3);flex-grow:1}
+.card-detail{margin-top:12px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;font-size:12px;line-height:2;display:none}
+.tag-ok{display:inline-flex;padding:2px 10px;border-radius:20px;margin:2px 4px 2px 0;font-size:11px;background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.25);color:#06d6a0}
+.tag-miss{display:inline-flex;padding:2px 10px;border-radius:20px;margin:2px 4px 2px 0;font-size:11px;background:rgba(100,116,139,.08);border:1px solid rgba(100,116,139,.2);color:var(--text3)}
+.warn-banner{display:flex;align-items:flex-start;gap:10px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#fbbf24;margin-bottom:16px;line-height:1.6}
+.mini-btn{background:var(--pri-glow);border:1px solid rgba(79,143,255,.3);color:var(--pri);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:600;transition:.2s;white-space:nowrap;font-family:inherit}
+.mini-btn:hover{background:var(--pri);color:#fff}
+.mini-btn.danger{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.25);color:#ef4444}
+.mini-btn.danger:hover{background:#ef4444;color:#fff}
+.run-btn{width:100%;padding:15px;border:none;border-radius:var(--radius-md);font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,var(--pri) 0%,#6b4fff 50%,var(--sec) 100%);background-size:200% 200%;color:#fff;box-shadow:0 4px 24px rgba(79,143,255,.35);animation:btn-gradient 4s ease infinite}
+@keyframes btn-gradient{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.run-btn:disabled{background:var(--surface3);color:var(--text3);cursor:not-allowed;box-shadow:none;animation:none}
+.reopen-preview-btn{width:100%;padding:13px;border:2px solid rgba(168,85,247,.5);border-radius:var(--radius-md);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;background:rgba(168,85,247,.08);color:#c084fc;margin-top:10px;transition:.3s;display:none}
+.reopen-preview-btn:hover{background:rgba(168,85,247,.18);border-color:var(--sec)}
+.reopen-preview-btn.visible{display:block}
+#log{background:#020408;border-radius:10px;padding:14px;font-size:12px;color:var(--pri);border:1px solid var(--border);display:none;max-height:300px;overflow-y:auto;white-space:pre-wrap;font-family:'Consolas',monospace;line-height:1.7}
+.log-toolbar{display:flex;justify-content:flex-end;gap:8px;margin-top:14px;margin-bottom:6px}
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:1000;justify-content:center;align-items:center;padding:20px}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);width:100%;max-width:920px;max-height:90vh;overflow-y:auto}
+.modal-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:10}
+.modal-header h2{font-size:16px;font-weight:700}
+.modal-body{padding:20px 24px}
+.modal-body .code-section{margin-bottom:18px}
+.modal-body .code-section h3{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase}
+.modal-body textarea{min-height:160px;color:#4ade80;background:#020408;border-color:var(--border);font-size:11.5px}
+.modal-body .info-strip{background:rgba(6,214,160,.06);border:1px solid rgba(6,214,160,.2);border-radius:10px;padding:12px 14px;font-size:12px;color:#34d399;margin-bottom:18px;line-height:1.8}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--surface);flex-wrap:wrap}
+.btn-cancel{padding:10px 24px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-family:inherit}
+.btn-confirm{padding:10px 28px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,var(--pri),var(--sec));color:#fff;font-family:inherit;box-shadow:0 4px 14px rgba(79,143,255,.3)}
+.btn-workshop{padding:10px 28px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;background:linear-gradient(135deg,var(--acc),#059669);color:#fff;font-family:inherit;box-shadow:0 4px 14px rgba(6,214,160,.3);transition:.2s}
+.btn-workshop:hover{box-shadow:0 6px 20px rgba(6,214,160,.4);transform:translateY(-1px)}
+.prompt-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;cursor:pointer;transition:.2s;user-select:none}
+.prompt-header:hover{border-color:var(--border2)}
+.prompt-header-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--text2)}
+.prompt-badge{font-size:10px;background:var(--sec-glow);border:1px solid rgba(168,85,247,.3);color:var(--sec);padding:2px 8px;border-radius:10px;font-weight:600}
+.prompt-collapse-icon{font-size:11px;color:var(--text3);transition:transform .3s}
+.prompt-collapse-icon.open{transform:rotate(180deg)}
+.prompt-body{margin-top:8px;display:none}
+.prompt-body.open{display:block}
+.community-link{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px 20px;border-radius:var(--radius-md);cursor:pointer;background:linear-gradient(135deg,rgba(168,85,247,.08),rgba(79,143,255,.08));border:1px dashed rgba(168,85,247,.3);font-size:14px;font-weight:600;color:#c084fc;transition:.3s;text-decoration:none}
+.community-link:hover{background:linear-gradient(135deg,rgba(168,85,247,.15),rgba(79,143,255,.15));border-color:#a855f7;transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,85,247,.15)}
+.community-link-sub{font-size:12px;opacity:.7}
+.credit-footer{margin-top:32px;text-align:center;width:100%;max-width:860px;position:relative;z-index:1}
+.credit-card{display:inline-flex;align-items:center;gap:16px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 24px;flex-wrap:wrap;justify-content:center}
+.credit-avatar{width:40px;height:40px;background:linear-gradient(135deg,var(--pri),var(--sec));border-radius:10px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#fff}
+.credit-info{text-align:left}
+.credit-name{font-size:14px;font-weight:700}
+.credit-meta{font-size:11px;color:var(--text3);margin-top:2px}
+.copyright{font-size:11px;color:var(--text3);margin-top:12px}
+.share-toast{position:fixed;top:24px;left:50%;transform:translateX(-50%);background:rgba(6,214,160,.12);border:1px solid rgba(6,214,160,.4);color:#34d399;padding:12px 24px;border-radius:var(--radius-md);font-size:13px;font-weight:600;z-index:9999;box-shadow:var(--shadow-md);backdrop-filter:blur(10px);animation:toast-fade .3s ease}
+@keyframes toast-fade{from{opacity:0;transform:translateX(-50%) translateY(-10px)}}
+/* Mới: Chỉ báo độ phức tạp */
+.complexity-indicator{display:none;align-items:center;gap:6px;padding:10px 14px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:12px;color:var(--text2);margin-bottom:12px}
+.complexity-indicator.visible{display:flex}
+/* Mới: Tiến trình tạo mã */
+.generation-progress{display:none;margin-top:16px;padding:16px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-md)}
+.generation-progress.active{display:block}
+.progress-stages{display:flex;align-items:center;gap:0;margin-bottom:12px}
+.progress-stage{display:flex;flex-direction:column;align-items:center;gap:6px;flex:0 0 auto;font-size:11px;color:var(--text3);transition:color .3s}
+.progress-stage.active{color:var(--pri)}
+.progress-stage.done{color:var(--acc)}
+.stage-dot{width:12px;height:12px;border-radius:50%;border:2px solid var(--border2);transition:all .3s}
+.progress-stage.active .stage-dot{border-color:var(--pri);background:var(--pri);box-shadow:0 0 8px var(--pri-glow);animation:pulse-dot 1.5s infinite}
+.progress-stage.done .stage-dot{border-color:var(--acc);background:var(--acc)}
+.progress-line{flex:1;height:2px;background:var(--border);margin:0 8px;margin-bottom:20px}
+.progress-line.filled{background:var(--acc)}
+.progress-timer{text-align:center;font-size:12px;color:var(--text3)}
+/* Mới: Kéo thả toàn trang */
+#drop-overlay{display:none;position:fixed;inset:0;background:rgba(5,8,16,.92);backdrop-filter:blur(8px);z-index:9000;justify-content:center;align-items:center}
+#drop-overlay.visible{display:flex}
+.drop-overlay-content{text-align:center;padding:40px;border:3px dashed var(--pri);border-radius:24px;background:var(--pri-glow2);animation:drop-pulse 1.5s ease infinite}
+@keyframes drop-pulse{0%,100%{box-shadow:0 0 0 0 rgba(79,143,255,.3)}50%{box-shadow:0 0 0 20px rgba(79,143,255,0)}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(prefers-contrast:high){:root{--border:#3a4a6a;--border2:#4a5a7a;--text2:#b0b8c8;--text3:#8090a8}}
+@media(max-width:640px){
+  body{padding:16px 12px 36px}
+  .form-row{flex-direction:column}
+  .style-grid{grid-template-columns:1fr}
+  .card-header{padding:14px 16px}
+  .card-body{padding:0 16px 16px}
+  .card-divider{margin:0 16px 16px}
+  .modal-footer{flex-direction:column}
+  .online-widget{bottom:16px;right:16px;padding:6px 12px;font-size:11px}
+  .online-num{font-size:12px}
+  .preset-tag,.mini-btn{min-height:44px;display:inline-flex;align-items:center}
+}
+</style>
+</head>
+<body>
+
+<div id="drop-overlay"><div class="drop-overlay-content"><div style="font-size:64px">📂</div><div style="font-size:18px;font-weight:700;margin-top:12px">Hãy tải thẻ nhân vật lên</div><div style="font-size:13px;color:var(--text3);margin-top:4px">Hỗ trợ định dạng .json</div></div></div>
+
+<header class="hero">
+  <h1>Một cú nhấp chuột cho thẻ nhân vật của bạn<br>Chèn siêu trạng thái MVU</h1>
+  <p>Dành cho người mới bắt đầu chưa biết lập trình. Chọn kiểu → Danh mục và chọn thẻ → Kết nối AI để tự động tạo.</p>
+  <div class="hero-line"></div>
+</header>
+
+<main class="container">
+
+  <section class="card" aria-labelledby="step1-title">
+    <div class="card-header"><div class="step-num" aria-hidden="true">1</div><div class="card-title-group"><h2 class="card-title" id="step1-title">Nạp thẻ nhân vật mục tiêu</h2><div class="card-sub">Hỗ trợ định dạng JSON chara_card_v2/v3 · Có thể kéo và thả đến bất kỳ vị trí nào trên trang</div></div></div>
+    <div class="card-divider"></div>
+    <div class="card-body">
+      <div class="upload-zone" id="upload-zone"><label for="fileInput" class="file-btn">Chọn thẻ JSON</label><input type="file" id="fileInput" accept=".json"><div id="card-info">Đang chờ tải lên...</div></div>
+      <div class="card-detail" id="card-detail"></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="step2-title">
+    <div class="card-header"><div class="step-num green" aria-hidden="true">2</div><div class="card-title-group"><h2 class="card-title" id="step2-title">Cấu hình API mô hình lớn</h2><div class="card-sub">Hỗ trợ mọi giao diện định dạng OpenAI</div></div></div>
+    <div class="card-divider"></div>
+    <div class="card-body">
+      <div class="warn-banner" role="alert"><span>🔒</span><span>Khóa API chỉ được gửi trực tiếp đến địa chỉ giao diện bạn điền vào trình duyệt cục bộ của mình.</span></div>
+      <div class="form-row"><div class="form-group" style="flex:2"><div class="form-label">Địa chỉ giao diện</div><input type="text" id="api-url" value="https://api.openai.com/v1/chat/completions"></div><div class="form-group" style="flex:1"><div class="form-label">API Key</div><input type="password" id="api-key" placeholder="sk-..." autocomplete="off"></div></div>
+      <div class="form-row"><div class="form-group" style="flex:2"><div class="form-label">Mẫu <loại nút="button" id="btn-fetch-models" class="mini-btn">Nhận danh sách mô hình</button></div><input type="text" id="api-model" value="gpt-4o"><select id="api-model-select" style="display:none;width:100%"></select><button type="button" id="btn-clear-model-select" class="mini-btn" style="display:none;margin-top:6px">✏️ Nhập thủ công</button></div><div class="form-group" style="flex:1;max-width:180px"><div class="form-label">Temperature</div><input type="number" id="api-temp" value="0.5" min="0" max="2" step="0.1"></div></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="step3-title">
+    <div class="card-header"><div class="step-num orange" aria-hidden="true">3</div><div class="card-title-group"><h2 class="card-title" id="step3-title">Chọn kiểu thanh trạng thái</h2><div class="card-sub">Chọn phong cách trực quan bạn thích và AI sẽ tạo giao diện người dùng phù hợp</div></div></div>
+    <div class="card-divider"></div>
+    <div class="card-body">
+      <div class="style-grid" id="style-grid" role="radiogroup" aria-label="kiểu thanh trạng thái">
+        <div class="style-card active" data-style="minimal" data-style-desc="Thẻ mờ đơn giản, thanh tiến trình góc tròn, nền tối, thích hợp cho thẻ đối thoại hàng ngày, tình yêu và nhân vật trong khuôn viên trường" role="radio" aria-checked="true" tabindex="0">
+          <div class="style-preview minimal"><div class="sp-header"><div class="sp-avatar">A</div><div style="flex:1"><div class="sp-name">Tên nhân vật</div></div><div class="sp-badge">Lv.5</div></div><div class="sp-stat-row"><div class="sp-stat-label">❤️Ấn tượng tốt</div><div class="sp-bar-wrap"><div class="sp-bar-fill blue"></div></div><div class="sp-bar-val">65</div></div><div class="sp-stat-row"><div class="sp-stat-label">🎒 Ba lô</div><div class="sp-bar-wrap"><div class="sp-bar-fill green"></div></div><div class="sp-bar-val">4/10</div></div><div class="sp-stat-row"><div class="sp-stat-label">💖 Tâm trạng</div><div class="sp-bar-wrap"><div class="sp-bar-fill pink"></div></div><div class="sp-bar-val">78</div></div><div class="sp-items"><div class="sp-item">🧪 Thuốc chữa bệnh x3</div><div class="sp-item">📜 Cuộn nhiệm vụ</div><div class="sp-item">🗡️ Kiếm sắt</div></div></div>
+          <div class="style-info"><div class="style-name">🌙 Thẻ đơn giản</div><div class="style-desc">Nền tối trong suốt · Thanh tiến trình bo tròn · Bố cục gọn gàng</div></div>
+        </div>
+        <div class="style-card" data-style="ancient" data-style-desc="Phong cách cuộn cổ điển, sử dụng phông chữ thư pháp và tông màu vàng ấm áp, bố cục nhiều tab, phù hợp với phong cách cổ xưa, lịch sử, võ thuật và thẻ nhân vật bất tử" role="radio" aria-checked="false" tabindex="-1">
+          <div class="style-preview ancient"><div class="sp-title">Jun Jian</div><div class="sp-divider"></div><div class="sp-row"><span>◈ Thi thể ở đâu?</span><span class="sp-val">Quasi Prince Consort Captain</span></div><div class="sp-row"><span>◈ Danh tiếng thuộc về đâu</span><span class="sp-val">30 người nổi tiếng</span></div><div class="sp-divider"></div><div class="sp-row"><span>◈ Vốn tư nhân trong kho bạc nội bộ</span><span class="sp-val">50 lạng bạc</span></div><div class="sp-row"><span>◈ Kho chứa ngũ cốc riêng</span><span class="sp-val">Ba hòn đá ngũ cốc và cỏ</span></div><div class="sp-tabs"><div class="sp-tab active">Junjian</div><div class="sp-tab">Nặng hơn</div><div class="sp-tab">Kết nối</div><div class="sp-tab">bản đồ</div></div></div>
+          <div class="style-info"><div class="style-name">📜 Cuộn kiểu cổ <span class="style-badge">Tham khảo Khúc bi ca Hậu Minh</span></div><div class="style-desc">Tông màu vàng ấm · Phông chữ thư pháp · Phân trang tab · Cửa sổ bật lên bản đồ</div></div>
+        </div>
+        <div class="style-card" data-style="portrait" data-style-desc="Bảng vẽ dọc nhiều ký tự, mỗi nhân vật có màu chủ đề và hình đại diện độc lập, chuyển đổi chế độ kép danh sách/chi tiết, với thanh tiến trình và trang trí nhãn, phù hợp với thẻ nhân vật kịch chân dung nhiều nhân vật, hậu cung và nhóm" role="radio" aria-checked="false" tabindex="-1">
+          <div class="style-preview portrait"><div class="sp-topbar"><div class="sp-topbar-title">❤Thanh trạng thái</div><div style="display:flex;gap:3px"><div class="sp-topbar-dot"></div><div class="sp-topbar-dot" style="background:#429e73;box-shadow:0 0 6px rgba(66,158,115,.6)"></div><div class="sp-topbar-dot" style="background:#b388ff;box-shadow:0 0 6px rgba(179,136,255,.6)"></div></div></div><div class="sp-char-row" style="--row-c:#ffb7c5"><div class="sp-char-av av1"></div><div class="sp-char-info"><div class="sp-char-name">Giang Tuyết</div><div class="sp-char-bar"><div class="sp-char-fill" style="width:60%;background:linear-gradient(90deg,#ffb7c5,#fff)"></div></div><div class="sp-char-tag">Yun Po Yue Peep</div></div></div><div class="sp-char-row" style="--row-c:#429e73"><div class="sp-char-av av2"></div><div class="sp-char-info"><div class="sp-char-name">Chu Dao</div><div class="sp-char-bar"><div class="sp-char-fill" style="width:35%;background:linear-gradient(90deg,#429e73,#fff)"></div></div><div class="sp-char-tag">Cánh cửa tâm linh vẫn chưa mở</div></div></div><div class="sp-char-row" style="--row-c:#b388ff"><div class="sp-char-av av3"></div><div class="sp-char-info"><div class="sp-char-name">Mạnh Thu Nương</div><div class="sp-char-bar"><div class="sp-char-fill" style="width:80%;background:linear-gradient(90deg,#b388ff,#fff)"></div></div></div></div></div>
+          <div class="style-info"><div class="style-name">🎨 Bảng vẽ nhân vật <span class="style-badge">Nhiều vai trò</span></div><div class="style-desc">Hiển thị dọc · Màu chủ đề độc lập · Chuyển đổi danh sách/chi tiết</div></div>
+        </div>
+        <div class="style-card" data-style="nurture" data-style-desc="Bảng theo dõi phát triển, thanh tiến trình đa chiều (điều trị/tin cậy/tuyến phòng thủ, v.v.), theo dõi phát triển bộ phận, nút trung tâm mua sắm tích hợp, thích hợp cho việc phát triển, đào tạo, điều trị, thẻ nhân vật quản lý, hỗ trợ tích hợp hệ thống trung tâm mua sắm" role="radio" aria-checked="false" tabindex="-1">
+          <div class="style-preview nurture"><div class="sp-n-header"><div class="sp-n-title">◈ Tiến trình điều trị</div><div class="sp-n-shop">🪙 Trung tâm thương mại 100</div></div><div class="sp-n-label"><span>Hoàn thành điều trị</span><span style="color:#c084fc">35%</span></div><div class="sp-n-bar"><div class="sp-n-fill purple"></div></div><div class="sp-n-label"><span>Tin cậy</span><span style="color:#67e8f9">55</span></div><div class="sp-n-bar"><div class="sp-n-fill cyan"></div></div><div class="sp-n-label"><span>Phòng thủ tâm lý</span><span style="color:#fb7185">80</span></div><div class="sp-n-bar"><div class="sp-n-fill rose" style="width:80%"></div></div><div class="sp-n-stats"><div class="sp-n-stat"><div class="sp-n-stat-val">12</div><div class="sp-n-stat-name">Phần A</div></div><div class="sp-n-stat"><div class="sp-n-stat-val">8</div><div class="sp-n-stat-name">Phần B</div></div><div class="sp-n-stat"><div class="sp-n-stat-val">3</div><div class="sp-n-stat-name">Phần C</div></div><div class="sp-n-stat"><div class="sp-n-stat-val">0</div><div class="sp-n-stat-name">Phần D</div></div></div></div>
+          <div class="style-info"><div class="style-name">💎 Theo dõi phát triển <span class="style-badge">Tài liệu tham khảo Yunshuangning</span></div><div class="style-desc">Tiến trình đa chiều · Theo dõi bộ phận · Trung tâm mua sắm tích hợp · Hệ thống sân khấu</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="step4-title">
+    <div class="card-header"><div class="step-num purple" aria-hidden="true">4</div><div class="card-title-group"><h2 class="card-title" id="step4-title">Yêu cầu chức năng tùy chỉnh</h2><div class="card-sub">Nhấp vào danh mục để mở rộng và chọn nhiều thẻ</div></div></div>
+    <div class="card-divider"></div>
+    <div class="card-body">
+      <div id="tag-categories" role="group" aria-label="Lựa chọn nhãn chức năng">
+        <div class="tag-category open"><div class="tag-category-header"><div class="tag-category-left"><span class="tag-cat-icon">🎭</span><span class="tag-cat-name">Hàng ngày/Xã hội</span><span class="tag-cat-count">3 mục</span></div><span class="tag-cat-arrow">▼</span></div><div class="tag-category-body"><span class="preset-tag active" data-val="Hệ thống ưu tiên (ưu tiên NPC là liên tục, lưu và tải tệp khi chuyển đổi NPC)" role="checkbox" aria-checked="true" tabindex="0">❤️ Sự ưa thích</span><span class="preset-tag" data-val="Bảng động NPC hiện tại (tên/nghề nghiệp/trạng thái/suy nghĩ bên trong)" role="checkbox" aria-checked="false" tabindex="0">🎭 Bảng điều khiển NPC</span><span class="preset-tag" data-val="Trạng thái nhân vật (đói/tâm trạng/trạng thái bất thường, v.v.)" role="checkbox" aria-checked="false" tabindex="0">😊 Trạng thái nhân vật</span></div></div>
+        <div class="tag-category"><div class="tag-category-header"><div class="tag-category-left"><span class="tag-cat-icon">⚔️</span><span class="tag-cat-name">RPG / Chiến đấu</span><span class="tag-cat-count">5 mục</span></div><span class="tag-cat-arrow">▼</span></div><div class="tag-category-body"><span class="preset-tag" data-val="Hệ thống sức khỏe/sức chịu đựng" role="checkbox" aria-checked="false" tabindex="0">💚 Sức khỏe/Sức chịu đựng</span><span hạng="preset-tag" data-val="Hệ thống giá trị cảnh giới/cấp độ/kinh nghiệm (bao gồm cả việc phân bổ điểm thuộc tính)" role="checkbox" aria-checked="false" tabindex="0">⚔️ Cảnh giới/Cấp độ</span><span hạng="preset-tag" data-val="Cây kỹ năng (kỹ năng là các đối tượng lồng nhau, bao gồm các trường con cấp độ và mô tả)" role="checkbox" aria-checked="false" tabindex="0">🌟 Cây kỹ năng</span><span class="preset-tag" data-val="Hệ thống thiết bị/mặc" role="checkbox" aria-checked="false" tabindex="0">🛡️ Mặc thiết bị</span><span class="preset-tag" data-val="Nội dung triệu tập/hợp đồng (đối tượng lồng nhau, bao gồm các trường con cấp độ/loại/trạng thái)" role="checkbox" aria-checked="false" tabindex="0">👁️ Lệnh triệu tập</span></div></div>
+        <div class="tag-category open"><div class="tag-category-header"><div class="tag-category-left"><span class="tag-cat-icon">🎒</span><span class="tag-cat-name">Khám phá/Kinh tế</span><span class="tag-cat-count">4 mục</span></div><span class="tag-cat-arrow">▼</span></div><div class="tag-category-body"><span class="preset-tag active" data-val="Ba lô/Hàng tồn kho (đối tượng phẳng có tên mặt hàng là khóa và số lượng là giá trị)" role="checkbox" aria-checked="true" tabindex="0">🎒 Ba lô/Hàng đồ</span><span class="preset-tag" data-val="Đồng tiền vàng/hệ thống kinh tế tiền tệ" role="checkbox" aria-checked="false" tabindex="0">💰 Tiền vàng/tiền tệ</span><span class="preset-tag" data-val="Chuyển động ngày/giờ" role="checkbox" aria-checked="false" tabindex="0">🕒 Dòng thời gian</span><span class="preset-tag" data-val="Theo dõi nhiệm vụ/thành tích" role="checkbox" aria-checked="false" tabindex="0">📜 Theo dõi nhiệm vụ</span></div></div>
+        <div class="tag-category"><div class="tag-category-header"><div class="tag-category-left"><span class="tag-cat-icon">🗺️</span><span class="tag-cat-name">Các tính năng nâng cao</span><span class="tag-cat-count">5 mục</span></div><span class="tag-cat-arrow">▼</span></div><div class="tag-category-body"><span class="preset-tag" data-val="Giao diện người dùng thanh trạng thái nổi động (thẻ trong mờ, chuyển đổi đa chủ đề)" role="checkbox" aria-checked="false" tabindex="0">🎨 Chuyển đổi chủ đề giao diện người dùng nổi</span><span class="preset-tag" data-val="Hệ thống bản đồ (sử dụng z.record để ghi lại tọa độ và mô tả vị trí, một bản đồ đơn giản được nhúng vào thanh trạng thái để hiển thị vị trí hiện tại và các khu vực có thể khám phá, nhấp vào vị trí để xem cửa sổ bật lên chi tiết)" role="checkbox" aria-checked="false" tabindex="0">🗺️ Hệ thống bản đồ</span><span class="preset-tag" data-val="Hệ thống lực lượng/trại (quản lý công nghiệp và quản lý quân đội, tự động tổng hợp thu chi hàng tháng)" role="checkbox" aria-checked="false" tabindex="0">🏰 Lực lượng/trại</span><span class="preset-tag" data-val="Hệ thống trung tâm mua sắm (tích hợp cửa hàng prop, sử dụng z.record để quản lý danh sách sản phẩm bao gồm tên/giá/mô tả/loại/hiệu ứng, trường cân bằng tiền tệ, theo dõi trạng thái prop đã mua, hỗ trợ vật tư tiêu hao/đạo cụ cố định/phân loại thiết bị, thanh trạng thái hiển thị nút trung tâm mua sắm và số dư tiền tệ, nhấp để mở rộng danh sách sản phẩm)" role="checkbox" aria-checked="false" tabindex="0">🪙 Hệ thống trung tâm thương mại</span><span class="preset-tag" data-val="Bảng vẽ dọc nhiều ký tự (nhiều ký tự với màu chủ đề độc lập, chuyển đổi chế độ kép danh sách/chi tiết, hình đại diện nhân vật và màn hình vẽ dọc, thanh tiến trình độc lập và theo dõi trạng thái cho từng ký tự)" role="checkbox" aria-checked="false" tabindex="0">👥Bảng điều khiển đa chức năng</span></div></div>
+      </div>
+      <div class="form-group" style="margin-bottom:16px;margin-top:4px"><div class="form-label">Yêu cầu bổ sung được tùy chỉnh</div><input type="text" id="user-features" placeholder="Ví dụ: thêm hệ thống nhân giống thú cưng..." style="border-color:rgba(79,143,255,.3)"></div>
+      <div class="prompt-header" id="prompt-toggle"><div class="prompt-header-left"><span>📐</span><span>Lời nhắc về kiến trúc MVU Zod</span><span class="prompt-badge">Thông số kỹ thuật tích hợp</span></div><div style="display:flex;align-items:center;gap:8px"><span style="font-size:11px;color:var(--text3)">Thông thường không cần sửa đổi gì</span><span class="prompt-collapse-icon" id="prompt-collapse-icon">▼</span></div></div>
+      <div class="prompt-body" id="prompt-body"><textarea id="zod-prompt" style="min-height:300px;margin-top:0;border-top:none"></textarea></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-header"><div class="step-num" style="background:rgba(6,214,160,.1);border-color:rgba(6,214,160,.3);color:var(--acc)" aria-hidden="true">★</div><div class="card-title-group"><div class="card-title">Thư viện mẫu cộng đồng</div><div class="card-sub">Lược đồ mặc định · Chia sẻ người dùng · Cấu hình ứng dụng bằng một cú nhấp chuột</div></div></div>
+    <div class="card-divider"></div>
+    <div class="card-body"><a href="community.html" class="community-link">📚 Mở thư viện mẫu cộng đồng <span class="community-link-sub">Gói mặc định · Chia sẻ người dùng · Ứng dụng một cú nhấp chuột</span></a></div>
+  </section>
+
+  <section class="card">
+    <div class="card-header"><div class="step-num" style="background:rgba(6,214,160,.1);border-color:rgba(6,214,160,.3);color:var(--acc)" aria-hidden="true">🤖</div><div class="card-title-group"><div class="card-title">Hội thảo về mã AI</div><div class="card-sub">Cải thiện mã bằng hội thoại AI · Có thể nhập trực tiếp mà không cần tạo mã trước</div></div></div>
+    <div class="card-divider"></div>
+    <div class="card-body"><button type="button" id="btn-open-workshop" class="community-link" style="border-style:dashed;border-color:rgba(6,214,160,.3);color:#34d399;width:100%;text-align:center;cursor:pointer;background:linear-gradient(135deg,rgba(6,214,160,.08),rgba(79,143,255,.08))">🤖 Hội thảo mã AI mở <span class="community-link-sub" style="color:#34d399">Cải tiến hộp thoại · Chỉnh sửa thủ công · Chèn trực tiếp</span></button></div>
+  </section>
+
+  <section class="card"><div style="padding:20px">
+    <div class="complexity-indicator" id="complexity-indicator"></div>
+    <button type="button" class="run-btn" id="btn-run" disabled>⚡ Kết nối với AI · Bắt đầu tạo và tiêm thông minh</button>
+    <div class="generation-progress" id="generation-progress">
+      <div class="progress-stages">
+        <div class="progress-stage" data-stage="connect"><div class="stage-dot"></div><span>Kết nối API</span></div>
+        <div class="progress-line" id="pl-1"></div>
+        <div class="progress-stage" data-stage="generate"><div class="stage-dot"></div><span>AI đang tạo ra</span></div>
+        <div class="progress-line" id="pl-2"></div>
+        <div class="progress-stage" data-stage="parse"><div class="stage-dot"></div><span>mã phân tích</span></div>
+        <div class="progress-line" id="pl-3"></div>
+        <div class="progress-stage" data-stage="preview"><div class="stage-dot"></div><span>Xem trước đã sẵn sàng</span></div>
+      </div>
+      <div class="progress-timer">⏳ <span id="progress-sec">0</span>s</div>
+    </div>
+    <button type="button" class="reopen-preview-btn" id="btn-reopen-preview">📝 Mở lại cửa sổ xem trước</button>
+    <div class="log-toolbar" id="log-toolbar" style="display:none"><button type="button" class="mini-btn" id="btn-copy-log">Sao chép nhật ký</button><button type="button" class="mini-btn danger" id="btn-clear-log">Thông thoáng</button></div>
+    <div id="log" role="log"></div>
+  </div></section>
+</main>
+
+<footer class="credit-footer"><div class="credit-card"><div class="credit-avatar">Quan</div><div class="credit-info"><div class="credit-name">Xiaoquan</div><div class="credit-meta">Discord · 113916nb · v4.1</div></div></div><div class="copyright">© 2026 Xiaoquan · Vui lòng không xóa thông tin bản quyền [Công cụ này hoàn toàn miễn phí]</div></footer>
+
+<div class="modal-overlay" id="preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-modal-title"><div class="modal-box">
+  <div class="modal-header"><h2 id="preview-modal-title">Xem trước và chỉnh sửa mã do AI tạo</h2><button type="button" class="mini-btn danger" id="modal-close-x">đóng cửa</button></div>
+  <div class="modal-body">
+    <div class="info-strip" role="alert">✅ Danh sách tiêm: ① Kịch bản trợ lý quán rượu ② first_mes initvar ③ 3 mục trong sách thế giới ④ 3 mục thông thường<br>⚠️ Sau khi xác nhận rằng mọi thứ đều chính xác, hãy nhấp vào "Xác nhận tiêm". Nên sao lưu thẻ gốc trước!</div>
+    <div class="code-section"><h3>Schema (JS)</h3><textarea id="preview-js" spellcheck="false"></textarea></div>
+    <div class="code-section"><h3>Init Data (YAML)</h3><textarea id="preview-init-yaml" spellcheck="false"></textarea></div>
+    <div class="code-section"><h3>Update Rules (YAML)</h3><textarea id="preview-rules-yaml" spellcheck="false"></textarea></div>
+    <div class="code-section"><h3>UI HTML</h3><textarea id="preview-html" spellcheck="false" style="min-height:220px"></textarea></div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn-cancel" id="modal-cancel">Hủy bỏ</button>
+    <button type="button" class="btn-workshop" id="modal-open-workshop">🤖 Mở workshop AI để tiếp tục hoàn thiện</button>
+    <button type="button" class="btn-confirm" id="modal-confirm">✅ Xác nhận chèn và tải xuống</button>
+  </div>
+</div></div>
+
+<div class="online-widget" title="Số lượng người dùng trực tuyến theo thời gian thực hiện tại" aria-live="polite">
+  <div class="online-dot"></div>
+  <span>Thời gian thực trực tuyến: <span class="online-num" id="online-count">1</span></span>
+</div>
+
+<script>
+'use strict';
+var CONFIG={FETCH_TIMEOUT_MS:150000,MODEL_FETCH_TIMEOUT_MS:15000,MAX_DESC_LENGTH:1200,MAX_FIRST_MES_LENGTH:1000,MVU_BUNDLE_CONTENT:"import 'https://testingcf.jsdelivr.net/gh/MagicalAstrogy/MagVarUpdate/artifact/bundle.js'",MVU_BUNDLE_NAME:'Kịch bản MVU Zod',MVU_SCHEMA_NAME:'kịch bản',RUN_BTN_TEXT:'⚡ Kết nối với AI · Bắt đầu tạo và tiêm thông minh'};
+
+var WORKSHOP_KEY='mvu-studio-workshop';
+var API_CONFIG_KEY='mvu-studio-api';
+var CONFIG_KEY='mvu-studio-config';
+var HISTORY_KEY='mvu-studio-history';
+var MAX_HISTORY=10;
+
+/* === Làm rối API Key === */
+var KeyObfuscator={
+  encode:function(k){if(!k)return'';try{return btoa(k.split('').reverse().join('')).replace(/=/g,'_');}catch(e){return k;}},
+  decode:function(e){if(!e)return'';try{return atob(e.replace(/_/g,'=')).split('').reverse().join('');}catch(x){return e;}}
+};
+
+function getMainConfig(){try{var r=localStorage.getItem(CONFIG_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function saveMainConfig(cfg){try{localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));}catch(e){}}
+function syncConfigToStorage(){
+  var style=getSelectedStyle();
+  var tags=Array.from(document.querySelectorAll('#tag-categories .preset-tag.active')).map(function(x){return x.dataset.val;});
+  var features=document.getElementById('user-features').value.trim();
+  saveMainConfig({selectedStyle:style.key,selectedTags:tags,userFeatures:features});
+  updateComplexity();
+}
+
+function restoreConfigFromStorage(){
+  var cfg=getMainConfig();if(!cfg)return;
+  if(cfg.selectedStyle){document.querySelectorAll('.style-card').forEach(function(c){var isActive=c.dataset.style===cfg.selectedStyle;c.classList.toggle('active',isActive);c.setAttribute('aria-checked',isActive?'true':'false');c.tabIndex=isActive?0:-1;});}
+  if(cfg.selectedTags&&Array.isArray(cfg.selectedTags)){document.querySelectorAll('#tag-categories .preset-tag').forEach(function(t){var isActive=cfg.selectedTags.indexOf(t.dataset.val)!==-1;t.classList.toggle('active',isActive);t.setAttribute('aria-checked',isActive?'true':'false');});}
+  if(cfg.userFeatures){document.getElementById('user-features').value=cfg.userFeatures;}
+  updateComplexity();
+}
+
+function debounce(fn,ms){var t;return function(){var self=this,args=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(self,args);},ms);};}
+
+/* === Chỉ báo độ phức tạp === */
+function updateComplexity(){
+  var activeTags=document.querySelectorAll('#tag-categories .preset-tag.active');
+  var count=activeTags.length;
+  var style=document.querySelector('.style-card.active');
+  var styleKey=style?style.dataset.style:'minimal';
+  var level,color,estTokens,estTime;
+  if(count<=3){level='Thấp';color='var(--acc)';estTokens='~3k';estTime='15-30s';}
+  else if(count<=7){level='ở giữa';color='var(--warn)';estTokens='~5k';estTime='30-60s';}
+  else{level='Cao';color='var(--err)';estTokens='~8k+';estTime='60-120s';}
+  if(styleKey==='portrait'||styleKey==='nurture')estTokens+='(Giao diện người dùng phức tạp)';
+  var el=document.getElementById('complexity-indicator');
+  if(el){el.innerHTML='<span style="color:'+color+'">●</span> Độ phức tạp: <strong style="color:'+color+'">'+level+'</strong> · Token ước tính: '+estTokens+' · Thời gian dự kiến: '+estTime+' · Nhãn: '+count+' mục';el.classList.toggle('visible',count>0);}
+}
+
+document.getElementById('tag-categories').addEventListener('click',function(e){
+  var h=e.target.closest('.tag-category-header');
+  if(h){h.closest('.tag-category').classList.toggle('open');return;}
+  var t=e.target.closest('.preset-tag');
+  if(t){t.classList.toggle('active');t.setAttribute('aria-checked',t.classList.contains('active')?'true':'false');syncConfigToStorage();}
+});
+
+document.getElementById('style-grid').addEventListener('click',function(e){
+  var c=e.target.closest('.style-card');if(!c)return;
+  this.querySelectorAll('.style-card').forEach(function(x){x.classList.remove('active');x.setAttribute('aria-checked','false');x.tabIndex=-1;});
+  c.classList.add('active');c.setAttribute('aria-checked','true');c.tabIndex=0;
+  syncConfigToStorage();
+});
+
+/* Bàn phímkhông cótiếp cận: Phím mũi tên chuyển kiểu */
+document.getElementById('style-grid').addEventListener('keydown',function(e){
+  if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft'&&e.key!=='ArrowUp'&&e.key!=='ArrowDown')return;
+  e.preventDefault();
+  var cards=Array.from(this.querySelectorAll('.style-card'));
+  var idx=cards.findIndex(function(c){return c.classList.contains('active');});
+  if(e.key==='ArrowRight'||e.key==='ArrowDown')idx=(idx+1)%cards.length;
+  else idx=(idx-1+cards.length)%cards.length;
+  cards.forEach(function(c,i){c.classList.toggle('active',i===idx);c.setAttribute('aria-checked',i===idx?'true':'false');c.tabIndex=i===idx?0:-1;});
+  cards[idx].focus();
+  syncConfigToStorage();
+});
+
+function getSelectedStyle(){var a=document.querySelector('.style-card.active');return a?{name:a.querySelector('.style-name').textContent.trim(),desc:a.dataset.styleDesc||'',key:a.dataset.style||'minimal'}:{name:'thẻ đơn giản',desc:'',key:'minimal'};}
+
+document.getElementById('user-features').addEventListener('input',debounce(syncConfigToStorage,500));
+
+document.getElementById('prompt-toggle').addEventListener('click',function(){var b=document.getElementById('prompt-body'),i=document.getElementById('prompt-collapse-icon'),o=b.classList.contains('open');b.classList.toggle('open',!o);i.classList.toggle('open',!o);});
+
+/* ====== Đã khôi phục ZOD_PROMPT chất lượng cao đầy đủ từ v4.0 ====== */
+var ZOD_PROMPT=`# Đặc tả thiết kế đầy đủ hệ thống biến MVU
+
+== Module 1_0 Đặc tả thiết kế Schema (JavaScript) ==
+Môi trường chạy: Plugin trợ lý SillyTavern, đã tích hợp sẵn toàn cục Zod(z), Lodash(_)
+
+【Quy tắc kiểu dữ liệu】
+- Số: z.coerce.number().transform(v => _.clamp(v, min, max))  Cấm dùng .min().max()
+- Chuỗi: z.string()
+- Đối tượng có thể xóa: z.record(...).prefault({})  Cấm dùng z.any()/z.array()
+- Trường tùy chọn: .optional().default(giá trị mặc định)
+
+\`\`\`javascript
+import { registerMvuSchema } from 'https://testingcf.jsdelivr.net/gh/StageDog/tavern_resource/dist/util/mvu_zod.js';
+export const Schema = z.object({
+  thế_giới: z.object({
+    thời_gian_hiện_tại: z.string(),
+    thời_tiết_hiện_tại: z.string(),
+    khu_vực_thành_phố: z.string(),
+  }),
+  user: z.object({
+    tên: z.string(),
+    cấp: z.coerce.number().transform(v => _.clamp(v, 1, 9999)),
+    kinh_nghiệm_hiện_tại: z.coerce.number().transform(v => _.clamp(v, 0, 100)),
+    nghề_nghiệp: z.string(),
+    trạng_thái_hiện_tại: z.string(),
+    địa_điểm_hiện_tại: z.string(),
+    nhiệm_vụ_hiện_tại: z.string(),
+    suy_nghĩ_nội_tâm: z.string(),
+    điểm_thuộc_tính_chưa_phân: z.coerce.number().transform(v => Math.max(v, 0)),
+    độ_thiện_cảm: z.coerce.number().transform(v => _.clamp(v, -100, 100)),
+    sức_mạnh: z.coerce.number().transform(v => _.clamp(v, 0, 9999)),
+    nhanh_nhẹn: z.coerce.number().transform(v => _.clamp(v, 0, 9999)),
+    thể_chất: z.coerce.number().transform(v => _.clamp(v, 0, 9999)),
+    tinh_thần: z.coerce.number().transform(v => _.clamp(v, 0, 9999)),
+    kỹ_năng: z.record(z.string(), z.object({
+      cấp: z.coerce.number().transform(v => _.clamp(v, 1, 999)),
+      mô tả:z.string(),
+    }).optional()).prefault({}),
+    ba_lô: z.record(z.string(), z.coerce.number().transform(v => Math.max(v, 0))).prefault({}),
+    vật_triệu_hồi: z.record(z.string(), z.union([
+      z.object({
+        cấp: z.coerce.number().transform(v => _.clamp(v,1,999)).optional().default(1),
+        loại: z.string().optional().default(""),
+        trạng_thái: z.string().optional().default("Chế độ chờ"),
+        mô tả:z.string().optional().default(""),
+      }), z.null(), z.undefined(),
+    ]).optional()).prefault({}),
+  }),
+  nhân_vật_hiện_tại: z.object({
+    tên: z.string(),
+    cấp: z.coerce.number().transform(v => _.clamp(v, 1, 9999)),
+    nghề_nghiệp: z.string(),
+    trạng_thái_hiện_tại: z.string(),
+    suy_nghĩ_nội_tâm: z.string(),
+    độ_thiện_cảm: z.coerce.number().transform(v => _.clamp(v, -100, 100)),
+  }),
+  NPC_lưu_trữ: z.record(z.string(), z.object({
+    độ_thiện_cảm: z.coerce.number().transform(v => _.clamp(v, -100, 100)),
+  })).prefault({}),
+});
+$(() => { registerMvuSchema(Schema); })
+\`\`\`
+
+== Module 1_1 Dữ liệu khởi tạo (YAML) ==
+YAML thuần túy, không có chú thích, đối tượng rỗng viết {}, kỹ năng phải viết rõ cấp + mô tả trường con.
+
+\`\`\`yaml
+thế_giới:
+  thời_gian_hiện_tại: "2024-01-01 08:00"
+  thời_tiết_hiện_tại: Quang đãng
+  khu_vực_thành_phố: Một nơi nào đó
+user:
+  tên: "{{user}}"
+  cấp: 1
+  kinh_nghiệm_hiện_tại: 0
+  nghề_nghiệp: không rõ
+  trạng_thái_hiện_tại: Trạng thái tốt
+  địa_điểm_hiện_tại: Một nơi nào đó
+  nhiệm_vụ_hiện_tại: Bắt đầu phiêu lưu
+  suy_nghĩ_nội_tâm: Mọi thứ mới bắt đầu.
+  điểm_thuộc_tính_chưa_phân: 0
+  độ_thiện_cảm: 0
+  sức_mạnh: 50
+  nhanh_nhẹn: 50
+  thể_chất: 50
+  tinh_thần: 50
+  kỹ_năng:
+    Kỹ năng cơ bản:
+      cấp: 1
+      mô tả: Kỹ năng ban đầu.
+  ba_lô:
+    Vật phẩm ban đầu: 1
+  vật_triệu_hồi: {}
+nhân_vật_hiện_tại:
+  tên: NPC nào đó
+  cấp: 10
+  nghề_nghiệp: Nghề nghiệp nào đó
+  trạng_thái_hiện_tại: Bình thường
+  suy_nghĩ_nội_tâm: Suy nghĩ ban đầu.
+  độ_thiện_cảm: 0
+NPC_lưu_trữ: {}
+\`\`\`
+
+== Module 2 Quy tắc cập nhật (YAML) ==
+Phải bắt đầu bằng "Quy tắc cập nhật biến:" làm khóa cấp cao nhất.
+
+\`\`\`yaml
+Quy tắc cập nhật biến:
+  thế_giới:
+    thời_gian_hiện_tại:
+      type: string
+      check:
+        - Đẩy thời gian tiến lên sau mỗi cuộc hội thoại hoặc sự kiện
+  user:
+    cấp:
+      type: number
+      range: 1~9999
+      check:
+        - Khi lên cấp +1, đồng thời điểm thuộc tính chưa phân +5, kinh nghiệm hiện tại về 0
+    kinh_nghiệm_hiện_tại:
+      type: number
+      range: 0~100
+      check:
+        - Đạt 100 kích hoạt lên cấp
+    kỹ_năng:
+      type: "{ [tên: chuỗi]: { cấp độ: số, mô tả: chuỗi } }"
+      check:
+        - Học kỹ năng mới dùng add, lên cấp dùng replace, xóa dùng remove
+    ba_lô:
+      type: "{ [tên mục: chuỗi]: số }"
+      check:
+        - Nhận được dùng add, tiêu hao dùng replace, về 0 dùng remove
+  nhân_vật_hiện_tại:
+    tên:
+      check:
+        - Khi chuyển NPC, lưu độ thiện cảm NPC cũ vào NPC_lưu_trữ trước, rồi cập nhật trường này
+    độ_thiện_cảm:
+      type: number
+      range: -100~100
+      check:
+        - Cùng NPC thì dùng replace trực tiếp; chuyển NPC thì đọc giá trị mới từ NPC_lưu_trữ
+  NPC_lưu_trữ:
+    type: "{ [Tên NPC: chuỗi]: { Độ ưa thích: số } }"
+    check:
+      - Khi chuyển NPC lưu lại độ thiện cảm NPC cũ
+      - Cuối mỗi lượt đồng bộ độ thiện cảm mới nhất của NPC hiện tại
+\`\`\`
+
+== Module 4 Thanh trạng thái UI (HTML) ==
+Cảnh báo: Chạy trong iframe SillyTavern, không phải trình duyệt thường! Phải dùng script type="module".
+Phải dùng setInterval(r, 1500) liên tục polling làm mới — đây là cách duy nhất để thanh trạng thái cập nhật thời gian thực!
+Mở trên trình duyệt thường sẽ hiển thị trắng, đây là hiện tượng bình thường.
+
+Phải viết hoàn toàn theo cấu trúc này:
+\`\`\`html
+<head><!-- Viết CSS ở đây --></head>
+<body>
+<!-- Viết cấu trúc HTML ở đây -->
+<script type="module">
+  function r() {
+    try {
+      var data = getAllVariables().stat_data;
+      var name = _.get(data, "tên người dùng", "{{user}}");
+      var lv = _.get(data, "user.cấp", 1);
+      var skills = _.get(data, "người dùng.skills", {});
+      var bag = _.get(data, "user.ba_lô", {});
+      _.forEach(skills, function(v, k) { var slv=_.get(v,"cấp",1); var desc=_.get(v,"mô tả",""); });
+      _.forEach(bag, function(count, itemName) { });
+    } catch(e) { console.error(e); }
+  }
+  async function init() {
+    await waitGlobalInitialized("Mvu");
+    r();
+    if(window._ri) clearInterval(window._ri);
+    window._ri = setInterval(r, 1500);
+  }
+  $(errorCatched(init));
+<\\/script>
+</body>
+\`\`\`
+
+Quy chuẩn giao diện:
+- body background phải là transparent
+- Sử dụng kiểu thẻ nổi bán trong suốt
+- Hỗ trợ ít nhất 2 bộ màu chủ đề chuyển đổi
+- Phạm vi thanh tiến trình độ thiện cảm -100 đến 100, điểm giữa 0 tương ứng 50% chiều rộng
+- Hiển thị nút "+" khi có điểm thuộc tính chưa phân
+
+【Tham khảo Schema hệ thống trung tâm thương mại (khi người dùng chọn hệ thống trung tâm thương mại)】:
+Schema trung tâm mua sắm nên chứa hai trường cốt lõi: số dư tiền tệ và danh sách sản phẩm:
+  hệ_thống: z.object({
+    tiền_tệ: z.coerce.number().transform(v => Math.max(v, 0)).prefault(100),
+    danh_sách_sản_phẩm: z.record(z.string(), z.object({
+      giá: z.coerce.number(),
+      mô tả:z.string(),
+      loại: z.string(), // Vật phẩm tiêu hao/Đạo cụ vĩnh viễn/Trang bị
+      hiệu_ứng: z.string().optional().default(""),
+      đã_mua: z.coerce.boolean().optional().default(false),
+    })).prefault({}),
+    trạng_thái_đạo_cụ: z.record(z.string(), z.coerce.boolean()).prefault({}),
+  }).prefault({})
+UI trung tâm mua sắm nên hiển thị số dư tiền tệ trong thanh trạng thái và một nút danh sách sản phẩm có thể nhấp để mở rộng.
+Sau khi mua sản phẩm trừ tiền tệ, vật phẩm tiêu hao sau khi sử dụng sẽ bị xóa, đạo cụ vĩnh viễn đánh dấu đã mua.
+
+【Tham khảo Schema hệ thống bản đồ (khi người dùng chọn hệ thống bản đồ)】:
+Schema bản đồ nên ghi nhận các đánh dấu địa điểm:
+  đánh_dấu_bản_đồ: z.record(z.string(), z.object({
+    tọa_độ: z.tuple([z.number(), z.number()]).optional(),
+    bên_kiểm_soát: z.string().prefault("trung lập"),
+    mô tả:z.string().prefault(""),
+    cấp_thành_trấn: z.string().optional(),
+    trị_an: z.string().optional(),
+    kinh_tế: z.string().optional(),
+  })).prefault({})
+UI bản đồ có thể sử dụng CSS Grid để vẽ bản đồ ô vuông đơn giản, hoặc dùng SVG để vẽ khu vực.
+Khi nhấp vào địa điểm hiển thị popup chi tiết. Dùng biến địa điểm hiện tại để highlight vị trí người chơi.
+
+【Tham khảo bảng vẽ dọc nhiều nhân vật (khi người dùng chọn bảng điều khiển nhiều vai trò)】:
+Schema nhiều vai trò nên định nghĩa đối tượng con độc lập cho mỗi nhân vật:
+  nhân_vậtA: z.object({
+    trang_phục: z.string(),
+    ngoại_hình: z.string(),
+    độ_thiện_cảm: z.coerce.number().transform(v => _.clamp(v, 0, 100)),
+  }),
+UI nên hỗ trợ chuyển đổi giữa chế độ danh sách (sắp xếp tất cả thẻ nhân vật) và chế độ chi tiết (hiển thị ảnh lớn một nhân vật).
+Mỗi nhân vật có màu chủ đề riêng, bên trái thẻ nhân vật có đường kẻ dọc màu.
+Hỗ trợ hiển thị ảnh đại diện/tranh vẽ (thẻ img + referrerpolicy="no-referrer").
+
+【Tham khảo bảng theo dõi phát triển (khi người dùng chọn kiểu theo dõi phát triển)】:
+Schema hệ thống phát triển nên chứa theo dõi đa chiều:
+  điều_trị/phát_triển: z.object({
+    mức_hoàn_thành: z.coerce.number().transform(v => _.clamp(v, 0, 100)),
+    giai_đoạn: z.coerce.number().transform(v => _.clamp(v, 1, 10)),
+  }),
+  tên_nhân_vật: z.object({
+    Lòng tin: z.coerce.number().transform(v => _.clamp(v, 0, 100)),
+    phòng thủ tâm lý: z.coerce.number().transform(v => _.clamp(v, 0, 100)),
+    hoạt_động_tâm_lý: z.string(),
+  }),
+UI nên hiển thị nhiều thanh tiến trình, chỉ báo giai đoạn, và nút trung tâm mua sắm tích hợp (nếu áp dụng).`;
+
+document.getElementById('zod-prompt').value=ZOD_PROMPT;
+
+function buildFeatures(){var t=Array.from(document.querySelectorAll('#tag-categories .preset-tag.active')),p=t.map(function(x){return x.dataset.val;}),c=document.getElementById('user-features').value.trim();if(c)p.push(c);return p.join(', ');}
+function escapeHtml(s){if(typeof s!=='string')return'';var map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};return s.replace(/[&<>"']/g,function(c){return map[c];});}
+function generateUUID(){if(crypto.randomUUID)return crypto.randomUUID();var b=new Uint8Array(16);crypto.getRandomValues(b);b[6]=(b[6]&0x0f)|0x40;b[8]=(b[8]&0x3f)|0x80;var h=Array.from(b,function(x){return x.toString(16).padStart(2,'0');}).join('');return h.slice(0,8)+'-'+h.slice(8,12)+'-'+h.slice(12,16)+'-'+h.slice(16,20)+'-'+h.slice(20);}
+function clampNum(v,lo,hi){return Math.min(hi,Math.max(lo,Number(v)||lo));}
+function fetchTimeout(url,opts,ms){var c=new AbortController();var t=setTimeout(function(){c.abort();},ms);return fetch(url,Object.assign({},opts,{signal:c.signal})).finally(function(){clearTimeout(t);});}
+function deepGet(obj,path,fb){return path.split('.').reduce(function(o,k){return(o&&o[k]!==undefined)?o[k]:fb;},obj);}
+
+function extractCodeFromCard(jsonText){
+  var result={js:'',initYaml:'',rulesYaml:'',html:''};
+  try{var parsed=JSON.parse(jsonText);var d=parsed.data||parsed;
+  var scripts=(d.extensions&&d.extensions.tavern_helper&&d.extensions.tavern_helper.scripts)||[];
+  for(var i=0;i<scripts.length;i++){if(scripts[i].content&&scripts[i].content.indexOf('registerMvuSchema')!==-1){result.js=scripts[i].content;break;}}
+  var entries=(d.character_book&&d.character_book.entries)||[];
+  for(var j=0;j<entries.length;j++){var cm=entries[j].comment||'',ct=entries[j].content||'';if(cm.indexOf('dữ liệu ban đầu')!==-1){result.initYaml=ct.replace(/^\[initvar\]\n?/,'').replace(/\n?\[\/initvar\]$/,'');}else if(cm.indexOf('Quy tắc cập nhật biến')!==-1){result.rulesYaml=ct;}}
+  var regex=(d.extensions&&d.extensions.regex_scripts)||[];
+  for(var k=0;k<regex.length;k++){if((regex[k].scriptName||'').indexOf('Giao diện thanh trạng thái')!==-1){var rs=regex[k].replaceString||'';result.html=rs.replace(/^```\n?/,'').replace(/\n?```$/,'');break;}}
+  }catch(e){}return result;
+}
+
+function saveApiConfig(){
+  try{localStorage.setItem(API_CONFIG_KEY,JSON.stringify({url:document.getElementById('api-url').value.trim(),key:KeyObfuscator.encode(document.getElementById('api-key').value.trim()),model:document.getElementById('api-model').value.trim(),temp:document.getElementById('api-temp').value,_v:2}));}catch(e){}
+}
+function loadApiConfig(){
+  try{var c=JSON.parse(localStorage.getItem(API_CONFIG_KEY));if(c){if(c.url)document.getElementById('api-url').value=c.url;if(c.key)document.getElementById('api-key').value=c._v>=2?KeyObfuscator.decode(c.key):c.key;if(c.model)document.getElementById('api-model').value=c.model;if(c.temp)document.getElementById('api-temp').value=c.temp;}}catch(e){}
+}
+
+function saveToHistory(blocks,meta){
+  try{var h=JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');
+  h.unshift({id:generateUUID(),timestamp:Date.now(),date:new Date().toLocaleString('zh-CN'),cardName:meta.cardName||'không rõ',style:meta.style||'minimal',tagCount:meta.tagCount||0,model:meta.model||'',blocks:blocks});
+  while(h.length>MAX_HISTORY)h.pop();
+  localStorage.setItem(HISTORY_KEY,JSON.stringify(h));}catch(e){}
+}
+
+(function(){
+var originalFileText=null,charInfo=null,pendingInjection=null,lastGeneratedBlocks=null;
+function $id(id){return document.getElementById(id);}
+var els={fileInput:$id('fileInput'),cardInfo:$id('card-info'),cardDetail:$id('card-detail'),uploadZone:$id('upload-zone'),apiUrl:$id('api-url'),apiKey:$id('api-key'),apiModel:$id('api-model'),apiModelSelect:$id('api-model-select'),apiTemp:$id('api-temp'),btnClearModelSelect:$id('btn-clear-model-select'),userFeatures:$id('user-features'),zodPrompt:$id('zod-prompt'),btnRun:$id('btn-run'),btnFetchModels:$id('btn-fetch-models'),genProgress:$id('generation-progress'),progressSec:$id('progress-sec'),btnReopenPreview:$id('btn-reopen-preview'),logDiv:$id('log'),logToolbar:$id('log-toolbar'),btnCopyLog:$id('btn-copy-log'),btnClearLog:$id('btn-clear-log'),previewModal:$id('preview-modal'),previewJs:$id('preview-js'),previewInitYaml:$id('preview-init-yaml'),previewRulesYaml:$id('preview-rules-yaml'),previewHtml:$id('preview-html'),modalConfirm:$id('modal-confirm'),modalCancel:$id('modal-cancel'),modalCloseX:$id('modal-close-x'),modalOpenWorkshop:$id('modal-open-workshop'),btnOpenWorkshop:$id('btn-open-workshop')};
+
+function logMsg(msg,type){type=type||'info';els.logDiv.style.display='block';els.logToolbar.style.display='flex';var colors={err:'#f87171',succ:'#34d399',warn:'#fbbf24',info:'#64748b'};var d=document.createElement('div');d.style.cssText='color:'+(colors[type]||colors.info)+';margin-bottom:4px;';d.textContent='['+new Date().toLocaleTimeString()+'] '+msg;els.logDiv.appendChild(d);els.logDiv.scrollTop=els.logDiv.scrollHeight;}
+function clearLog(){els.logDiv.innerHTML='';els.logDiv.style.display='none';els.logToolbar.style.display='none';}
+els.btnClearLog.addEventListener('click',clearLog);
+els.btnCopyLog.addEventListener('click',function(){var s=this;navigator.clipboard.writeText(els.logDiv.textContent).then(function(){s.textContent='Đã sao chép';setTimeout(function(){s.textContent='Sao chép nhật ký';},1500);});});
+
+function analyzeCard(j){var d=j.data||j,t=[];var b=d.character_book||j.character_book;t.push((b&&b.entries&&b.entries.length>0)?{t:'Sách thế giới: '+b.entries.length+' mục',c:'ok'}:{t:'Sách thế giới: Không có',c:'miss'});var r=deepGet(d,'extensions.regex_scripts',[]);t.push(Array.isArray(r)&&r.length>0?{t:'Regex: '+r.length+' mục',c:'ok'}:{t:'Regex: Không có',c:'miss'});var s=deepGet(d,'extensions.tavern_helper.scripts',[]);t.push(Array.isArray(s)&&s.length>0?{t:'Script: '+s.length+' mục',c:'ok'}:{t:'Script: Không có',c:'miss'});return t;}
+function handleFile(file){if(!file.name.toLowerCase().endsWith('.json')){alert('Vui lòng chọn kiểu tệp .json (Nếu bạn có ảnh, hãy đưa vào SillyTavern và xuất thành Character.json trước)');return;}var reader=new FileReader();reader.onload=function(ev){try{var text=ev.target.result,parsed=JSON.parse(text),data=(parsed.spec==='chara_card_v3'||parsed.spec==='chara_card_v2')?parsed.data:parsed;if(!data||typeof data!=='object')throw new Error('không hợp lệ');originalFileText=text;charInfo=data;els.cardInfo.innerHTML='<span style="color:#4f8fff;font-weight:600;">Đã tải: '+escapeHtml(data.name||'Unnamed')+'</span>';els.btnRun.disabled=false;var tags=analyzeCard(parsed);els.cardDetail.innerHTML=tags.map(function(t){return'<span class="tag-'+t.c+'">'+escapeHtml(t.t)+'</span>';}).join('');els.cardDetail.style.display='block';logMsg('Tải thành công: "'+(data.name||'')+'"','succ');}catch(err){alert('Phân tích cú pháp không thành công:'+err.message);originalFileText=null;charInfo=null;els.btnRun.disabled=true;}};reader.readAsText(file,'utf-8');}
+els.fileInput.addEventListener('change',function(e){var f=e.target.files[0];if(f)handleFile(f); this.value='';});
+
+/* Kéo thả tải lên: upload-zone */
+els.uploadZone.addEventListener('dragenter',function(e){e.preventDefault();e.stopPropagation();this.classList.add('dragover');});
+els.uploadZone.addEventListener('dragover',function(e){e.preventDefault();e.stopPropagation();});
+els.uploadZone.addEventListener('dragleave',function(e){e.preventDefault();e.stopPropagation();this.classList.remove('dragover');});
+els.uploadZone.addEventListener('drop',function(e){e.preventDefault();e.stopPropagation();this.classList.remove('dragover');var f=e.dataTransfer.files[0];if(f)handleFile(f);});
+
+/* Kéo thả toàn trang */
+var dragCounter=0;var dropOverlay=$id('drop-overlay');
+document.addEventListener('dragenter',function(e){e.preventDefault();dragCounter++;if(e.dataTransfer.types.indexOf('Files')!==-1)dropOverlay.classList.add('visible');});
+document.addEventListener('dragleave',function(e){e.preventDefault();dragCounter--;if(dragCounter<=0){dragCounter=0;dropOverlay.classList.remove('visible');}});
+document.addEventListener('dragover',function(e){e.preventDefault();});
+document.addEventListener('drop',function(e){e.preventDefault();dragCounter=0;dropOverlay.classList.remove('visible');var f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.json'))handleFile(f);});
+
+els.btnFetchModels.addEventListener('click',async function(){var url=els.apiUrl.value.trim(),key=els.apiKey.value.trim();if(!url||!key){alert('Vui lòng điền địa chỉ API và khóa trước');return;}var btn=this;btn.textContent='Nhận...';btn.disabled=true;try{var mu=url;if(mu.indexOf('/chat/completions')!==-1)mu=mu.replace('/chat/completions','/models');else if(mu.slice(-7)!=='/models')mu=mu.replace(/\/$/,'')+'/models';var resp=await fetchTimeout(mu,{method:'GET',headers:{'Authorization':'Bearer '+key}},CONFIG.MODEL_FETCH_TIMEOUT_MS);if(!resp.ok)throw new Error('HTTP '+resp.status);var d=await resp.json();if(!d||!d.data)throw new Error('Định dạng không khớp');var models=d.data.map(function(m){return m.id;}).filter(Boolean).sort();var sel=els.apiModelSelect;sel.innerHTML='<option value="">Chọn mô hình</option>';models.forEach(function(id){var o=document.createElement('option');o.value=id;o.textContent=id;sel.appendChild(o);});els.apiModel.style.display='none';sel.style.display='block';els.btnClearModelSelect.style.display='inline-block';sel.value=els.apiModel.value||'';sel.onchange=function(){if(this.value)els.apiModel.value=this.value;};logMsg(models.length+'mô hình','succ');}catch(err){logMsg('Không thể nhận được:'+err.message,'err');}finally{btn.textContent='đáp lại';btn.disabled=false;}});
+els.btnClearModelSelect.addEventListener('click',function(){els.apiModelSelect.style.display='none';els.apiModel.style.display='block';els.btnClearModelSelect.style.display='none';});
+
+function extractCodeBlocks(t){var blocks=[],re=/```([\w][\w-]*)\s*[\r\n]+([\s\S]*?)[\r\n]+```/g,m;while((m=re.exec(t))!==null)blocks.push({lang:m[1].toLowerCase(),content:m[2]});var js=blocks.find(function(b){return b.lang==='javascript'||b.lang==='js';});var html=blocks.find(function(b){return b.lang==='html';});var yamls=blocks.filter(function(b){return b.lang==='yaml'||b.lang==='yml';});if(!js||!html||yamls.length<2)return null;var initY,rulesY,ri=-1;for(var i=0;i<yamls.length;i++){if(yamls[i].content.indexOf('Quy tắc cập nhật biến')!==-1){ri=i;break;}}if(ri!==-1){rulesY=yamls[ri].content;initY=yamls[ri===0?1:0].content;}else{initY=yamls[0].content;rulesY=yamls[1].content;}return{js:js.content.trim(),initYaml:initY.trim(),rulesYaml:rulesY.trim(),html:html.content.trim()};}
+
+var codeBlocksRef=null;
+var DE={position:4,exclude_recursion:false,display_index:0,probability:100,useProbability:true,depth:2,selectiveLogic:0,outlet_name:'',group:'',group_override:false,group_weight:100,prevent_recursion:false,delay_until_recursion:false,scan_depth:null,match_whole_words:null,use_group_scoring:false,case_sensitive:null,automation_id:'',role:0,vectorized:false,sticky:0,cooldown:0,delay:0};
+function makeE(displayIdx,ep){return Object.assign({},DE,{display_index:displayIdx},ep||{});}
+
+function injectScripts(data){if(!data.extensions)data.extensions={};if(!data.extensions.tavern_helper)data.extensions.tavern_helper={};if(!Array.isArray(data.extensions.tavern_helper.scripts))data.extensions.tavern_helper.scripts=[];var sc=data.extensions.tavern_helper.scripts;var sb={enabled:true,buttons:[{name:'Xử lý lại các biến',visible:false},{name:'Đọc lại các biến ban đầu',visible:false},{name:'ảnh chụp sàn',visible:false},{name:'tầng tái hiện',visible:false},{name:'Thử lại phân tích mô hình bổ sung',visible:false},{name:'Xóa biến tầng cũ',visible:false}]};var ei=-1;for(var i=0;i<sc.length;i++){if(sc[i].name===CONFIG.MVU_BUNDLE_NAME||(sc[i].content&&sc[i].content.indexOf('MagicalAstrogy')!==-1)){ei=i;break;}}var bs={type:'script',enabled:true,name:CONFIG.MVU_BUNDLE_NAME,id:ei>=0?(sc[ei].id||generateUUID()):generateUUID(),content:CONFIG.MVU_BUNDLE_CONTENT,info:'',button:sb,data:{'Có hiển thị lỗi cập nhật biến':'Yes'}};if(ei>=0)sc[ei]=bs;else sc.unshift(bs);var si=-1;for(var j=0;j<sc.length;j++){if((sc[j].name===CONFIG.MVU_SCHEMA_NAME&&sc[j].name!==CONFIG.MVU_BUNDLE_NAME)||(sc[j].content&&sc[j].content.indexOf('registerMvuSchema')!==-1&&sc[j].name!==CONFIG.MVU_BUNDLE_NAME)){si=j;break;}}var ss={type:'script',enabled:true,name:CONFIG.MVU_SCHEMA_NAME,id:si>=0?(sc[si].id||generateUUID()):generateUUID(),content:codeBlocksRef.js,info:'',button:{enabled:true,buttons:[]},data:{}};if(si>=0)sc[si]=ss;else{var bi=-1;for(var k=0;k<sc.length;k++){if(sc[k].name===CONFIG.MVU_BUNDLE_NAME){bi=k;break;}}sc.splice(bi>=0?bi+1:1,0,ss);}logMsg('Script: '+sc.length+' mục','succ');}
+function injectFirstMes(data,output){var CR='\r\n',ib='<UpdateVariable>'+CR+'<initvar>'+CR+codeBlocksRef.initYaml+CR+'</initvar>'+CR+'</UpdateVariable>',st=CR+'<StatusPlaceHolderImpl/>';if(typeof data.first_mes==='string'){var fm=data.first_mes,re=/<UpdateVariable>[\r\n]+<initvar>[\s\S]*?<\/initvar>[\r\n]+<\/UpdateVariable>/i;if(re.test(fm)){var n=fm.replace(re,ib);if(n.indexOf('<StatusPlaceHolderImpl/>')===-1)n+=st;data.first_mes=n;}else{if(fm.indexOf('<StatusPlaceHolderImpl/>')!==-1)data.first_mes=fm.replace('<StatusPlaceHolderImpl/>',ib+st);else data.first_mes=ib+st+CR+fm;}}else data.first_mes=ib+st;if(output.spec)output.first_mes=data.first_mes;logMsg('quá trình tiêm first_mes đã hoàn tất','succ');}
+function injectWorldBook(data){if(!data.character_book)data.character_book={entries:[],name:data.name||'sách thế giới'};if(!Array.isArray(data.character_book.entries))data.character_book.entries=[];var en=data.character_book.entries;var mx=en.reduce(function(m,e){return Math.max(m,typeof e.id==='number'?e.id:0);},0);var ni=mx+1;var dIdx=en.reduce(function(m,e){return Math.max(m,typeof e.display_index==='number'?e.display_index:(e.extensions&&typeof e.extensions.display_index==='number'?e.extensions.display_index:0));},0)+1;function fi(c){for(var i=0;i<en.length;i++){if(en[i].comment===c)return i;}return-1;}var i1=fi('[AI tiêm] Tệp dữ liệu ban đầu');var e1={id:i1>=0?en[i1].id:ni++,keys:[],secondary_keys:[],comment:'[AI tiêm] tệp dữ liệu ban đầu',content:'[initvar]\n'+codeBlocksRef.initYaml+'\n[/initvar]',constant:true,selective:true,insertion_order :101,enabled:true,position:'after_char',use_regex:true,extensions:makeE(i1>=0?(en[i1].extensions&&en[i1].extensions.display_index||dIdx++):dIdx++)};if(i1>=0)en[i1]=e1;else en.push(e1);var i2=fi('[AI tiêm] cập nhật biến quy tắc');var e2={id:i2>=0?en[i2].id:ni++,keys:[],secondary_keys:[],comment:'[AI tiêm] quy tắc cập nhật biến',content:codeBlocksRef.rulesYaml,constant:true,selective:true,insertion_order:100,enabled:true,position:'after_char',use_regex:true,extensions:makeE(i2>=0?(en[i2].extensions&&en[i2].extensions.display_index||dIdx++):dIdx++)};if(i2>=0)en[i2]=e2;else en.push(e2);var fc='<status_current_variable>\n{{format_message_variable::stat_data}}\n</status_current_variable>\n\nĐịnh dạng đầu ra có thể thay đổi:\n quy tắc:\n - Các bản cập nhật biến phải được xuất ra ở cuối mỗi câu trả lời\n - Hướng dẫn cập nhật tuân thủ nghiêm ngặt Bản vá JSON (RFC 6902)\n định dạng: |-\n    <UpdateVariable>\n    <Analysis>(phân tích ngắn gọn)</Analysis>\n    <JSONPatch>\n [{ "op": "thay thế", "path": "/path", "value": "giá trị mới" }]\n    </JSONPatch>\n    </UpdateVariable>';var i3=fi('[Chèn AI] Định dạng đầu ra có thể thay đổi');var e3={id:i3>=0?en[i3].id:ni++,keys:[],secondary_keys:[],comment:'[Chèn AI] Định dạng đầu ra có thể thay đổi',content:fc,constant:true,selective:true,insertion_order:99,enabled:true,position:'after_char',use_regex:true,extensions:makeE(i3>=0?(en[i3].extensions&&en[i3].extensions.display_index||dIdx++):dIdx++,{depth:1,prevent_recursion:true})};if(i3>=0)en[i3]=e3;else en.push(e3);logMsg('Sách thế giới: '+en.length+' mục','succ');}
+function injectRegex(data){if(!Array.isArray(data.extensions.regex_scripts))data.extensions.regex_scripts=[];var rs=data.extensions.regex_scripts;function fr(n){for(var i=0;i<rs.length;i++){if(rs[i].scriptName===n)return i;}return-1;}var r1={id:generateUUID(),scriptName:'Xóa các cập nhật biến',disabled:false,runOnEdit:true,findRegex:'<UpdateVariable>[\\s\\S]*?<\\/UpdateVariable>',replaceString:'',trimStrings:[],placement:[2],substituteRegex:0,minDepth:null,maxDepth:null,markdownOnly:true,promptOnly:true};var x1=fr('Xóa cập nhật biến');if(x1>=0)rs[x1]=r1;else rs.unshift(r1);var r2={id:generateUUID(),scriptName:'Ẩn thanh trạng thái cho AI',disabled:false,runOnEdit:false,findRegex:'<StatusPlaceHolderImpl/>',replaceString:'',trimStrings:[],placement:[2],substituteRegex:0,minDepth:null,maxDepth:null,markdownOnly:false,promptOnly:true};var x2=fr('Ẩn thanh trạng thái cho AI');if(x2>=0)rs[x2]=r2;else rs.push(r2);var r3={id:generateUUID(),scriptName:'[AI Tiêm]Giao diện người dùng thanh trạng thái',disabled:false,runOnEdit:true,findRegex:'<StatusPlaceHolderImpl/>',replaceString:'```\n'+codeBlocksRef.html+'\n```',trimStrings:[],placement:[2],substituteRegex:0,minDepth:null,maxDepth:0,markdownOnly:true,promptOnly:false};var x3=fr('【Chèn AI】Giao diện người dùng thanh trạng thái');if(x3>=0)rs[x3]=r3;else rs.push(r3);logMsg('Regex: '+rs.length+' mục','succ');}
+
+function performInjection(cb){if(!originalFileText)throw new Error('Không có tập tin gốc');codeBlocksRef=cb;var output=JSON.parse(originalFileText),data=(output.spec==='chara_card_v3'||output.spec==='chara_card_v2')?output.data:output;injectScripts(data);injectFirstMes(data,output);injectWorldBook(data);injectRegex(data);var ot=JSON.stringify(output,null,2),blob=new Blob([ot],{type:'application/json;charset=utf-8'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=(charInfo.name||'Custom')+'-Thanh trạng thái MVU.json';document.body.appendChild(a);a.click();document.body.removeChild(a);logMsg('Quá trình tiêm hoàn tất và được tải xuống!','succ');codeBlocksRef=null;}
+
+function saveWorkshopData(cb){try{localStorage.setItem(WORKSHOP_KEY,JSON.stringify({js:cb.js,initYaml:cb.initYaml,rulesYaml:cb.rulesYaml,html:cb.html,cardName:charInfo?charInfo.name||'':'',cardText:originalFileText||''}));}catch(e){}}
+
+function showPreview(cb){pendingInjection=cb;lastGeneratedBlocks=cb;els.previewJs.value=cb.js;els.previewInitYaml.value=cb.initYaml;els.previewRulesYaml.value=cb.rulesYaml;els.previewHtml.value=cb.html;els.previewModal.classList.add('active');els.btnReopenPreview.classList.remove('visible');saveWorkshopData(cb);saveApiConfig();}
+function closePreview(){els.previewModal.classList.remove('active');pendingInjection=null;if(lastGeneratedBlocks)els.btnReopenPreview.classList.add('visible');}
+function resetBtn(){els.btnRun.textContent=CONFIG.RUN_BTN_TEXT;els.btnRun.disabled=false;}
+els.modalCancel.addEventListener('click',function(){closePreview();resetBtn();});
+els.modalCloseX.addEventListener('click',function(){closePreview();resetBtn();});
+els.previewModal.addEventListener('click',function(e){if(e.target===els.previewModal){closePreview();resetBtn();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'&&els.previewModal.classList.contains('active')){closePreview();resetBtn();}});
+els.btnReopenPreview.addEventListener('click',function(){if(!lastGeneratedBlocks)return;showPreview({js:els.previewJs.value||lastGeneratedBlocks.js,initYaml:els.previewInitYaml.value||lastGeneratedBlocks.initYaml,rulesYaml:els.previewRulesYaml.value||lastGeneratedBlocks.rulesYaml,html:els.previewHtml.value||lastGeneratedBlocks.html});});
+els.modalConfirm.addEventListener('click',function(){if(!pendingInjection&&!lastGeneratedBlocks)return;var f={js:els.previewJs.value.trim(),initYaml:els.previewInitYaml.value.trim(),rulesYaml:els.previewRulesYaml.value.trim(),html:els.previewHtml.value.trim()};if(!f.js||!f.initYaml||!f.rulesYaml||!f.html){alert('Khối mã không được để trống');return;}closePreview();lastGeneratedBlocks=null;els.btnReopenPreview.classList.remove('visible');try{performInjection(f);els.btnRun.textContent='✨ Tiêm thành công!';}catch(err){logMsg('Lỗi tiêm:'+err.message,'err');}els.btnRun.disabled=false;});
+
+els.modalOpenWorkshop.addEventListener('click',function(){var latest={js:els.previewJs.value.trim(),initYaml:els.previewInitYaml.value.trim(),rulesYaml:els.previewRulesYaml.value.trim(),html:els.previewHtml.value.trim(),cardName:charInfo?charInfo.name||'':'',cardText:originalFileText||''};localStorage.setItem(WORKSHOP_KEY,JSON.stringify(latest));saveApiConfig();window.open('workshop.html','_blank');});
+
+/* === Quản lý tiến trình tạo mã === */
+var timerInterval=null,timerSec=0;
+function setStage(stage){
+  var stages=['connect','generate','parse','preview'];
+  var lines=[$id('pl-1'),$id('pl-2'),$id('pl-3')];
+  var idx=stages.indexOf(stage);
+  document.querySelectorAll('.progress-stage').forEach(function(el,i){
+    el.classList.remove('active','done');
+    if(i<idx)el.classList.add('done');
+    else if(i===idx)el.classList.add('active');
+  });
+  lines.forEach(function(l,i){l.classList.toggle('filled',i<idx);});
+}
+function startProgress(){timerSec=0;els.progressSec.textContent='0';els.genProgress.classList.add('active');setStage('connect');timerInterval=setInterval(function(){timerSec++;els.progressSec.textContent=timerSec;},1000);}
+function stopProgress(){clearInterval(timerInterval);els.genProgress.classList.remove('active');}
+
+els.btnRun.addEventListener('click',async function(){
+  var url=els.apiUrl.value.trim(),key=els.apiKey.value.trim(),model=els.apiModel.value.trim(),zodPrompt=els.zodPrompt.value.trim(),temperature=clampNum(parseFloat(els.apiTemp.value),0,2),features=buildFeatures(),style=getSelectedStyle();
+  if(!url||!key){alert('Vui lòng điền địa chỉ API và khóa');return;}if(!model){alert('Vui lòng điền tên model');return;}if(!features){alert('Vui lòng chọn ít nhất một thẻ');return;}if(!charInfo||!originalFileText){alert('Vui lòng tải thẻ nhân vật lên trước');return;}
+  lastGeneratedBlocks=null;els.btnReopenPreview.classList.remove('visible');var btn=els.btnRun;btn.disabled=true;btn.textContent='⏳ AI đang tạo ra...';startProgress();clearLog();logMsg('Khởi động động cơ...');logMsg('Chức năng:'+features);logMsg('phong cách:'+style.name);
+  var desc=typeof charInfo.description==='string'?charInfo.description.substring(0,CONFIG.MAX_DESC_LENGTH):'không có',firstMes=typeof charInfo.first_mes==='string'?charInfo.first_mes.substring(0,CONFIG.MAX_FIRST_MES_LENGTH):'không có',ctx='[Thông tin thẻ nhân vật]\nTên:'+(charInfo.name||'không rõ')+'\nMô tả:'+desc+'\nLời mở đầu:'+firstMes;
+  var styleInst='\n\n【Yêu cầu phong cách trực quan】: Thiết kế UI theo kiểu "'+style.name+'". '+style.desc;
+  var sysMsg='Bạn là kiến trúc sư full-stack hàng đầu thành thạo về JavaScript, kiến trúc SillyTavern và máy trạng thái MVU. \nTheo [Chế độ xem thế giới nhân vật] và [Yêu cầu tùy chỉnh], hãy tuân thủ nghiêm ngặt [Thông số kỹ thuật của MVU Zod] để viết mã. \n\n[Đặc tả kiến trúc hệ thống MVU Zod]\n'+zodPrompt+'\n\n【Cảnh báo thanh trạng thái HTML】\n1. Chạy trong iframe SillyTavern\n2. Phải dùng script type="module"\n3. Phải dùng setInterval(r, 1500)\n4. Trình duyệt thường hiển thị trắng là bình thường\n\n【Định dạng đầu ra】Chỉ xuất 4 khối mã: \n\n```javascript\n// Schema\n```\n\n```yaml\n# Init Data\n```\n\n```yaml\n# Quy tắc cập nhật biến\n```\n\n```html\n<!-- UI HTML -->\n```';
+  var usrMsg=ctx+'\n\n[Yêu cầu tùy chỉnh]:**'+features+'**'+styleInst+'\n\nXuất trực tiếp 4 khối mã!';
+  try{logMsg('Mô hình:'+model);setStage('generate');var resp=await fetchTimeout(url,{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+key},body:JSON.stringify({model:model,temperature:temperature,messages:[{role:'system',content:sysMsg},{role:'user',content:usrMsg}]})},CONFIG.FETCH_TIMEOUT_MS);if(!resp.ok){var body='';try{body=await resp.text();}catch(e){}throw new Error('API không thành công['+resp.status+']: '+body.substring(0,500));}var resData=await resp.json(),aiText=resData&&resData.choices&&resData.choices[0]&&resData.choices[0].message&&resData.choices[0].message.content;if(!aiText)throw new Error('API trả về ngoại lệ');logMsg('Mô hình lớn trở lại!','succ');if(resData.usage){var u=resData.usage;logMsg('Token: nhập'+(u.prompt_tokens||'?')+'ngoài'+(u.completion_tokens||'?'));}setStage('parse');var cb=extractCodeBlocks(aiText);if(!cb){logMsg('Văn bản gốc AI:','warn');logMsg(aiText.substring(0,2000));throw new Error('4 khối mã hoàn chỉnh chưa được trích xuất');}logMsg('4 khối mã được trích xuất thành công!','succ');setStage('preview');saveToHistory(cb,{cardName:charInfo?charInfo.name:'',style:style.key,tagCount:document.querySelectorAll('#tag-categories .preset-tag.active').length,model:model});showPreview(cb);btn.textContent='📝 Vui lòng xác nhận việc tiêm trong cửa sổ xem trước';}catch(err){var msg=err.name==='AbortError'?'Yêu cầu hết thời gian':err.message;logMsg(msg,'err');resetBtn();}finally{stopProgress();}
+});
+
+function initOnlineCounter(){var countEl=document.getElementById('online-count');if(!countEl)return;var failCount=0,maxFails=2,pollTimer=null;function fetchOnlineCount(){fetch('online.php?t='+new Date().getTime()).then(function(res){if(!res.ok)throw new Error('HTTP '+res.status);return res.json();}).then(function(data){failCount=0;if(data&&data.online){countEl.textContent=data.online;}}).catch(function(){failCount++;if(failCount>=maxFails&&pollTimer){clearInterval(pollTimer);pollTimer=null;}});}fetchOnlineCount();pollTimer=setInterval(fetchOnlineCount,5000);}
+initOnlineCounter();
+
+function decodeShareCode(code){try{if(code.indexOf('?')!==-1){var u=new URL(code,location.href);code=u.searchParams.get('share')||'';}if(!code)return null;var b64=code.replace(/-/g,'+').replace(/_/g,'/');while(b64.length%4)b64+='=';return JSON.parse(decodeURIComponent(escape(atob(b64))));}catch(e){return null;}}
+
+function applyShareCodeOnMainPage(){
+  var params=new URLSearchParams(location.search);var code=params.get('share');if(!code)return;
+  var obj=decodeShareCode(code);if(!obj||obj.v!==1)return;
+  var allTagVals=['Hệ thống ưu tiên (ưu tiên NPC là liên tục, lưu và tải tệp khi chuyển đổi NPC)','Bảng động NPC hiện tại (tên/nghề nghiệp/trạng thái/suy nghĩ bên trong)','Trạng thái nhân vật (đói/tâm trạng/trạng thái bất thường, v.v.)','Hệ thống sức khỏe/sức chịu đựng','Hệ thống giá trị cảnh giới/cấp độ/kinh nghiệm (bao gồm cả việc phân bổ điểm thuộc tính)','Cây kỹ năng (kỹ năng là các đối tượng lồng nhau, bao gồm các trường con cấp độ và mô tả)','Hệ thống thiết bị/mặc','Nội dung triệu tập/hợp đồng (đối tượng lồng nhau, bao gồm các trường con cấp độ/loại/trạng thái)','Ba lô/Hàng tồn kho (đối tượng phẳng có tên mặt hàng là khóa và số lượng là giá trị)','Đồng tiền vàng/hệ thống kinh tế tiền tệ','Chuyển động ngày/giờ','Theo dõi nhiệm vụ/thành tích','Giao diện người dùng thanh trạng thái nổi động (thẻ trong mờ, chuyển đổi đa chủ đề)','Hệ thống bản đồ (sử dụng z.record để ghi lại tọa độ và mô tả vị trí, một bản đồ đơn giản được nhúng vào thanh trạng thái để hiển thị vị trí hiện tại và các khu vực có thể khám phá, nhấp vào vị trí để xem cửa sổ bật lên chi tiết)','Hệ thống lực lượng/trại (quản lý công nghiệp và quản lý quân đội, tự động tổng hợp thu chi hàng tháng)','Hệ thống trung tâm mua sắm (tích hợp cửa hàng prop, sử dụng z.record để quản lý danh sách sản phẩm bao gồm tên/giá/mô tả/loại/hiệu ứng, trường cân bằng tiền tệ, theo dõi trạng thái prop đã mua, hỗ trợ vật tư tiêu hao/đạo cụ cố định/phân loại thiết bị, thanh trạng thái hiển thị nút trung tâm mua sắm và số dư tiền tệ, nhấp để mở rộng danh sách sản phẩm)','Bảng vẽ dọc nhiều ký tự (nhiều ký tự với màu chủ đề độc lập, chuyển đổi chế độ kép danh sách/chi tiết, hình đại diện nhân vật và màn hình vẽ dọc, thanh tiến trình độc lập và theo dõi trạng thái cho từng ký tự)'];
+  if(obj.s){document.querySelectorAll('.style-card').forEach(function(c){var ia=c.dataset.style===obj.s;c.classList.toggle('active',ia);c.setAttribute('aria-checked',ia?'true':'false');c.tabIndex=ia?0:-1;});}
+  if(obj.t&&Array.isArray(obj.t)){var selectedVals=[];obj.t.forEach(function(i){if(allTagVals[i])selectedVals.push(allTagVals[i]);});document.querySelectorAll('#tag-categories .preset-tag').forEach(function(t){var ia=selectedVals.indexOf(t.dataset.val)!==-1;t.classList.toggle('active',ia);t.setAttribute('aria-checked',ia?'true':'false');});}
+  if(obj.f){document.getElementById('user-features').value=obj.f;}
+  syncConfigToStorage();history.replaceState({},'',location.pathname);
+  var toast=document.createElement('div');toast.className='share-toast';toast.textContent='✅ Cấu hình chia sẻ đã được áp dụng tự động!';document.body.appendChild(toast);setTimeout(function(){toast.style.opacity='0';toast.style.transition='opacity .3s';setTimeout(function(){toast.remove();},300);},4000);
+}
+
+restoreConfigFromStorage();
+applyShareCodeOnMainPage();
+loadApiConfig();
+
+els.btnOpenWorkshop.addEventListener('click',function(){
+  var workshopData={js:'',initYaml:'',rulesYaml:'',html:'',cardName:charInfo?charInfo.name||'':'',cardText:originalFileText||''};
+  if(lastGeneratedBlocks){workshopData.js=lastGeneratedBlocks.js||'';workshopData.initYaml=lastGeneratedBlocks.initYaml||'';workshopData.rulesYaml=lastGeneratedBlocks.rulesYaml||'';workshopData.html=lastGeneratedBlocks.html||'';}
+  else if(els.previewJs.value.trim()){workshopData.js=els.previewJs.value.trim();workshopData.initYaml=els.previewInitYaml.value.trim();workshopData.rulesYaml=els.previewRulesYaml.value.trim();workshopData.html=els.previewHtml.value.trim();}
+  else if(originalFileText){var extracted=extractCodeFromCard(originalFileText);if(extracted.js)workshopData.js=extracted.js;if(extracted.initYaml)workshopData.initYaml=extracted.initYaml;if(extracted.rulesYaml)workshopData.rulesYaml=extracted.rulesYaml;if(extracted.html)workshopData.html=extracted.html;}
+  localStorage.setItem(WORKSHOP_KEY,JSON.stringify(workshopData));saveApiConfig();window.open('workshop.html','_blank');
+});
+
+})();
+</script>
+</body>
+</html>
