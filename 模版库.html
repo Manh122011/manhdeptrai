@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MVU Studio · Thư viện mẫu cộng đồng</title>
+<meta name="description" content="Thư viện mẫu cộng đồng MVU Studio - áp dụng các gói cài sẵn chỉ bằng một cú nhấp chuột, lưu và chia sẻ cấu hình của bạn">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050810;--surface:#0a0e1a;--surface2:#0f1525;--surface3:#141b2d;--border:#1e2a45;--border2:#243050;--pri:#4f8fff;--pri-glow:rgba(79,143,255,.15);--pri-glow2:rgba(79,143,255,.08);--sec:#a855f7;--sec-glow:rgba(168,85,247,.15);--acc:#06d6a0;--warn:#f59e0b;--err:#ef4444;--text:#e2e8f0;--text2:#94a3b8;--text3:#64748b;--radius-sm:8px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--shadow-md:0 8px 24px rgba(0,0,0,.3)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+.toast-container{position:fixed;top:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:10px;max-width:420px;width:calc(100% - 48px);pointer-events:none}
+.toast{pointer-events:all;display:flex;align-items:flex-start;gap:12px;padding:14px 18px;border-radius:14px;background:var(--surface);border:1px solid var(--border2);box-shadow:0 8px 32px rgba(0,0,0,.5);animation:toast-in .35s cubic-bezier(.21,1.02,.73,1);backdrop-filter:blur(12px)}
+.toast.removing{animation:toast-out .3s ease forwards}
+.toast-icon{font-size:20px;flex-shrink:0;line-height:1.2}
+.toast-content{flex:1;min-width:0}
+.toast-title{font-size:13px;font-weight:700;margin-bottom:3px}
+.toast-msg{font-size:12px;color:var(--text2);line-height:1.5;word-break:break-word}
+.toast-close{background:none;border:none;color:var(--text3);cursor:pointer;font-size:16px;padding:0 0 0 8px;flex-shrink:0;line-height:1}
+.toast-close:hover{color:var(--text)}
+.toast.error{border-color:rgba(239,68,68,.4);background:rgba(239,68,68,.08)}.toast.error .toast-title{color:#f87171}
+.toast.success{border-color:rgba(6,214,160,.4);background:rgba(6,214,160,.08)}.toast.success .toast-title{color:#34d399}
+.toast.warning{border-color:rgba(245,158,11,.4);background:rgba(245,158,11,.08)}.toast.warning .toast-title{color:#fbbf24}
+.toast.info{border-color:rgba(79,143,255,.4);background:rgba(79,143,255,.08)}.toast.info .toast-title{color:#7ab0ff}
+@keyframes toast-in{from{opacity:0;transform:translateX(80px) scale(.95)}to{opacity:1;transform:translateX(0) scale(1)}}
+@keyframes toast-out{to{opacity:0;transform:translateX(80px) scale(.95)}}
+.page-wrap{max-width:960px;margin:0 auto;padding:32px 20px 60px}
+.back-btn{display:inline-flex;align-items:center;gap:8px;padding:8px 18px;border-radius:10px;background:var(--surface2);border:1px solid var(--border);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s;text-decoration:none;margin-bottom:24px}
+.back-btn:hover{border-color:var(--pri);color:var(--pri);background:var(--pri-glow2)}
+.page-hero{text-align:center;margin-bottom:36px}
+.page-hero h1{font-size:clamp(22px,4.5vw,32px);font-weight:900;background:linear-gradient(135deg,#fff 0%,#94b8ff 50%,#c084fc 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px}
+.page-hero p{font-size:14px;color:var(--text2);max-width:480px;margin:0 auto;line-height:1.6}
+.page-hero-line{width:60px;height:2px;background:linear-gradient(90deg,var(--pri),var(--sec));margin:16px auto 0;border-radius:2px}
+.tabs-bar{display:flex;gap:4px;margin-bottom:24px;background:var(--surface);border-radius:var(--radius-md);padding:5px;border:1px solid var(--border)}
+.tab-btn{flex:1;padding:10px 16px;border-radius:9px;font-size:13px;font-weight:600;text-align:center;cursor:pointer;color:var(--text3);transition:.2s;border:none;background:transparent;font-family:inherit}
+.tab-btn.active{background:var(--pri-glow);color:var(--pri);border:1px solid rgba(79,143,255,.3);box-shadow:0 2px 8px rgba(79,143,255,.1)}
+.tab-btn:hover:not(.active){color:var(--text2);background:var(--surface2)}
+.tab-count{font-size:10px;background:var(--surface3);padding:1px 7px;border-radius:10px;margin-left:4px;color:var(--text3)}
+.tab-btn.active .tab-count{background:rgba(79,143,255,.15);color:var(--pri)}
+.toolbar{display:flex;gap:12px;margin-bottom:20px;flex-wrap:wrap;align-items:center}
+.search-wrap{flex:1;min-width:200px;position:relative}
+.search-input{width:100%;background:var(--surface);border:1px solid var(--border);color:var(--text);padding:10px 14px 10px 38px;border-radius:10px;font-size:13px;font-family:inherit;transition:.2s}
+.search-input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-glow)}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text3);pointer-events:none}
+.sort-select{background:var(--surface);border:1px solid var(--border);color:var(--text2);padding:8px 12px;border-radius:10px;font-size:12px;font-family:inherit;cursor:pointer;transition:.2s;flex-shrink:0}
+.sort-select:focus{outline:none;border-color:var(--pri)}
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap}
+.filter-pill{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--surface2);color:var(--text3);transition:.2s;font-family:inherit}
+.filter-pill:hover{border-color:var(--pri);color:var(--pri)}
+.filter-pill.active{background:rgba(79,143,255,.12);border-color:rgba(79,143,255,.5);color:#7ab0ff;font-weight:600}
+.tmpl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-bottom:32px}
+.tmpl-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;transition:.3s;cursor:default;display:flex;flex-direction:column}
+.tmpl-card:hover{border-color:var(--border2);transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.tmpl-card.user-card{border-color:rgba(168,85,247,.15)}
+.tmpl-card.user-card:hover{border-color:rgba(168,85,247,.4)}
+.tmpl-card-top{padding:20px 20px 0;flex:1;cursor:pointer}
+.tmpl-icon{font-size:36px;margin-bottom:12px;display:block}
+.tmpl-name{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.3}
+.tmpl-author{font-size:11px;color:var(--text3);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.tmpl-author-badge{padding:1px 7px;border-radius:8px;font-size:9px;font-weight:600}
+.tmpl-author-badge.official{background:rgba(79,143,255,.1);border:1px solid rgba(79,143,255,.2);color:#7ab0ff}
+.tmpl-author-badge.community{background:rgba(6,214,160,.08);border:1px solid rgba(6,214,160,.2);color:var(--acc)}
+.tmpl-author-badge.mine{background:var(--sec-glow);border:1px solid rgba(168,85,247,.2);color:#c084fc}
+.tmpl-desc{font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:14px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.tmpl-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:14px}
+.tmpl-tag{font-size:10px;padding:3px 9px;border-radius:10px;background:rgba(79,143,255,.06);border:1px solid rgba(79,143,255,.15);color:#7ab0ff;white-space:nowrap}
+.tmpl-tag.style-tag{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.15);color:#c084fc}
+.tmpl-card-bottom{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tmpl-meta{font-size:10px;color:var(--text3);display:flex;align-items:center;gap:10px}
+.tmpl-like-btn{display:inline-flex;align-items:center;gap:4px;background:none;border:1px solid var(--border);border-radius:var(--radius-sm);padding:3px 10px;font-size:11px;color:var(--text3);cursor:pointer;transition:.2s;font-family:inherit}
+.tmpl-like-btn:hover{border-color:#f87171;color:#f87171}
+.tmpl-like-btn.liked{color:#f87171;border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.06)}
+.tmpl-actions{display:flex;gap:6px}
+.tmpl-btn{padding:5px 14px;border-radius:var(--radius-sm);font-size:11px;font-weight:600;cursor:pointer;border:1px solid;font-family:inherit;transition:.2s;white-space:nowrap}
+.tmpl-btn.apply{background:linear-gradient(135deg,var(--pri),#3b6fd4);border-color:transparent;color:#fff;box-shadow:0 2px 8px rgba(79,143,255,.3)}
+.tmpl-btn.apply:hover{box-shadow:0 4px 14px rgba(79,143,255,.4);transform:translateY(-1px)}
+.tmpl-btn.export{background:rgba(6,214,160,.06);border-color:rgba(6,214,160,.2);color:var(--acc)}
+.tmpl-btn.export:hover{background:var(--acc);color:#fff}
+.tmpl-btn.delete{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.15);color:#f87171}
+.tmpl-btn.delete:hover{background:#ef4444;color:#fff}
+.tmpl-btn.share-btn{background:rgba(245,158,11,.06);border-color:rgba(245,158,11,.2);color:#fbbf24}
+.tmpl-btn.share-btn:hover{background:var(--warn);color:#fff}
+.empty-state{text-align:center;padding:60px 20px;grid-column:1/-1}
+.empty-icon{font-size:56px;margin-bottom:16px;opacity:.4}
+.empty-title{font-size:16px;font-weight:700;margin-bottom:8px;color:var(--text2)}
+.empty-desc{font-size:13px;color:var(--text3);line-height:1.6}
+.section-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:24px}
+.section-title{font-size:15px;font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.section-sub{font-size:12px;color:var(--text3);margin-bottom:18px}
+.form-row{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.form-group{flex:1;display:flex;flex-direction:column;gap:5px;min-width:0}
+.form-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.form-input{background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:10px;font-size:13px;font-family:inherit;transition:.2s;width:100%}
+.form-input:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-glow)}
+.form-input::placeholder{color:var(--text3)}
+textarea.form-input{resize:vertical;min-height:80px;font-family:inherit;line-height:1.5}
+select.form-input{cursor:pointer}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:4px}
+.btn-primary{padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;background:linear-gradient(135deg,var(--sec),#7c3aed);color:#fff;box-shadow:0 2px 12px rgba(168,85,247,.3);transition:.2s;white-space:nowrap}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(168,85,247,.4)}
+.btn-secondary{padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:inherit;background:linear-gradient(135deg,var(--acc),#059669);color:#fff;box-shadow:0 2px 12px rgba(6,214,160,.3);transition:.2s;white-space:nowrap}
+.btn-secondary:hover{transform:translateY(-1px);box-shadow:0 4px 18px rgba(6,214,160,.4)}
+.btn-outline{padding:10px 24px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;border:1px dashed var(--border2);font-family:inherit;background:var(--surface2);color:var(--text2);transition:.2s;white-space:nowrap}
+.btn-outline:hover{border-color:var(--pri);color:var(--pri)}
+.import-file-label{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+input[type=file]{display:none}
+.share-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;margin-bottom:24px}
+.share-box{display:flex;gap:10px;align-items:center;margin-top:14px;flex-wrap:wrap}
+.share-url{flex:1;min-width:0;background:var(--surface2);border:1px solid var(--border2);padding:10px 14px;border-radius:10px;font-size:12px;font-family:'Consolas',monospace;color:var(--pri);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;user-select:all}
+.share-url.placeholder{color:var(--text3);font-family:inherit;user-select:none}
+.share-import-box{margin-top:14px;display:none;gap:10px;align-items:center}
+.share-import-box.visible{display:flex}
+.share-import-input{flex:1;background:var(--surface2);border:1px solid var(--border2);color:var(--text);padding:10px 14px;border-radius:10px;font-size:12px;font-family:'Consolas',monospace}
+.share-import-input:focus{outline:none;border-color:var(--sec);box-shadow:0 0 0 3px var(--sec-glow)}
+.detail-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);z-index:2000;justify-content:center;align-items:center;padding:20px}
+.detail-overlay.active{display:flex}
+.detail-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);width:100%;max-width:560px;max-height:85vh;overflow-y:auto;animation:modal-in .25s ease}
+@keyframes modal-in{from{opacity:0;transform:translateY(20px) scale(.97)}}
+.detail-header{padding:20px 24px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;position:sticky;top:0;background:var(--surface);z-index:5;border-radius:var(--radius-xl) var(--radius-xl) 0 0}
+.detail-header-left{display:flex;gap:14px;align-items:flex-start}
+.detail-icon{font-size:40px}
+.detail-title{font-size:18px;font-weight:800;margin-bottom:4px}
+.detail-author{font-size:12px;color:var(--text3)}
+.detail-close{background:none;border:1px solid var(--border);color:var(--text2);width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+.detail-close:hover{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#f87171}
+.detail-body{padding:20px 24px}
+.detail-warning{background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:10px 14px;font-size:12px;color:#fbbf24;margin-bottom:14px;line-height:1.5}
+.detail-desc{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:18px}
+.detail-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.detail-tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px}
+.detail-tag{font-size:11px;padding:4px 12px;border-radius:12px;background:rgba(79,143,255,.06);border:1px solid rgba(79,143,255,.15);color:#7ab0ff}
+.detail-tag.style-tag{background:rgba(168,85,247,.06);border-color:rgba(168,85,247,.15);color:#c084fc}
+.detail-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:18px}
+.detail-info-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.detail-info-val{font-size:18px;font-weight:800;color:var(--text);margin-bottom:2px}
+.detail-info-label{font-size:10px;color:var(--text3)}
+.detail-features{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:18px;font-size:12px;color:var(--text2);line-height:1.6}
+.detail-footer{padding:16px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;position:sticky;bottom:0;background:var(--surface);border-radius:0 0 var(--radius-xl) var(--radius-xl)}
+.confirm-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.7);z-index:3000;justify-content:center;align-items:center;padding:20px}
+.confirm-overlay.active{display:flex}
+.confirm-box{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;max-width:380px;width:100%;text-align:center;animation:modal-in .2s ease}
+.confirm-icon{font-size:40px;margin-bottom:12px}
+.confirm-title{font-size:16px;font-weight:700;margin-bottom:8px}
+.confirm-msg{font-size:13px;color:var(--text2);margin-bottom:20px;line-height:1.5}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+.confirm-btn{padding:8px 24px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:.2s}
+.confirm-btn.cancel{background:var(--surface2);border:1px solid var(--border2);color:var(--text2)}
+.confirm-btn.cancel:hover{border-color:var(--text3);color:var(--text)}
+.confirm-btn.danger{background:#ef4444;border:none;color:#fff}
+.confirm-btn.danger:hover{background:#dc2626}
+.page-footer{text-align:center;padding:24px 20px;border-top:1px solid var(--border);margin-top:20px}
+.footer-text{font-size:11px;color:var(--text3)}
+.footer-text a{color:var(--pri);text-decoration:none}
+.footer-text a:hover{text-decoration:underline}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+@media(max-width:640px){
+  .page-wrap{padding:20px 14px 40px}
+  .tmpl-grid{grid-template-columns:1fr}
+  .tabs-bar{flex-wrap:wrap}
+  .form-row{flex-direction:column}
+  .toolbar{flex-direction:column}
+  .search-wrap{min-width:0;width:100%}
+  .detail-box{border-radius:14px}
+  .detail-info-grid{grid-template-columns:1fr}
+  .share-box{flex-direction:column;align-items:stretch}
+  .tmpl-btn,.filter-pill,.tab-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+}
+@media(min-width:1400px){.tmpl-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="toast-container" id="toast-container" role="alert" aria-live="polite"></div>
+
+<div class="page-wrap">
+  <a class="back-btn" href="index.html">← Trở về Trang chủ MVU Studio</a>
+
+  <header class="page-hero">
+    <h1>📚 Thư viện mẫu cộng đồng</h1>
+    <p>Chọn gói cài sẵn và áp dụng nó chỉ bằng một cú nhấp chuột, lưu và chia sẻ cấu hình của bạn với những người dùng khác</p>
+    <div class="page-hero-line"></div>
+  </header>
+
+  <section class="share-section" id="share-section" aria-label="Chia sẻ cấu hình">
+    <div class="section-title">🔗 Chia sẻ cấu hình</div>
+    <div class="section-sub">Tạo liên kết để cho phép người khác nhập kiểu, thẻ và tham số của bạn chỉ bằng một cú nhấp chuột (Không bao gồm Khóa API)</div>
+    <div class="share-box">
+      <div class="share-url placeholder" id="share-url">Nhấp vào "Tạo liên kết chia sẻ"</div>
+      <button type="button" class="tmpl-btn apply" id="btn-gen-share">🔗 Tạo</button>
+      <button type="button" class="tmpl-btn export" id="btn-copy-share" style="display:none">📋 Sao chép</button>
+      <button type="button" class="tmpl-btn share-btn" id="btn-toggle-import">📥 nhập khẩu</button>
+    </div>
+    <div class="share-import-box" id="share-import-box">
+      <input type="text" class="share-import-input" id="share-import-input" placeholder="Dán liên kết hoặc mã chia sẻ..." aria-label="Chia sẻ đầu vào liên kết">
+      <button type="button" class="tmpl-btn apply" id="btn-do-import">Áp dụng</button>
+    </div>
+  </section>
+
+  <nav class="tabs-bar" id="tabs-bar" role="tablist" aria-label="Phân loại mẫu">
+    <button type="button" class="tab-btn active" data-tab="preset" role="tab" aria-selected="true">🌟Mặc định chính thức <span class="tab-count" id="count-preset">6</span></button>
+    <button type="button" class="tab-btn" data-tab="community" role="tab" aria-selected="false">🌍 Cộng đồngTinh chọn <span class="tab-count" id="count-community">3</span></button>
+    <button type="button" class="tab-btn" data-tab="mine" role="tab" aria-selected="false">💾 Mẫu của tôi <span class="tab-count" id="count-mine">0</span></button>
+  </nav>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input type="text" class="search-input" id="search-input" placeholder="Tìm kiếm tên mẫu, mô tả, thẻ..." aria-label="Tìm kiếm mẫu">
+    </div>
+    <select class="sort-select" id="sort-select" aria-label="sắp xếp theo">
+      <option value="default">Sắp xếp mặc định</option>
+      <option value="downloads">Bằng cách sử dụng</option>
+      <option value="newest">Mới nhất</option>
+      <option value="name">theo tên</option>
+    </select>
+    <div class="filter-pills" id="filter-pills" role="group" aria-label="Bộ lọc kiểu">
+      <button type="button" class="filter-pill active" data-filter="all">Tất cả</button>
+      <button type="button" class="filter-pill" data-filter="minimal">🌙 Đơn giản</button>
+      <button type="button" class="filter-pill" data-filter="ancient">📜 Cổ phong</button>
+      <button type="button" class="filter-pill" data-filter="portrait">🎨 vẽ dọc</button>
+      <button type="button" class="filter-pill" data-filter="nurture">💎 phát_triển</button>
+    </div>
+  </div>
+
+  <div class="tmpl-grid" id="tmpl-grid" role="list" aria-label="Danh sách mẫu"></div>
+
+  <section class="section-card" id="save-section" aria-label="Lưu mẫu">
+    <div class="section-title">💾 cứucấu hình hiện tại thành mẫu</div>
+    <div class="section-sub">Lưu kiểu và thẻ đã chọn trên trang chủ cục bộ để sử dụng nhanh vào lần tiếp theo hoặc để chia sẻ với người khác</div>
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Tên mẫu *</div><input type="text" class="form-input" id="save-name" placeholder="Ví dụ: RPG tình yêu trong khuôn viên trường"></div>
+      <div class="form-group"><div class="form-label">Tác giả</div><loại đầu vào="text" class="form-input" id="save-author" placeholder="biệt danh của bạn" value="người dùng ẩn danh"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">Mô tả ngắn</div><textarea class="form-input" id="save-desc" placeholder="Mô tả loại thẻ nhân vật mà mẫu này phù hợp với..."></textarea></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group" style="max-width:120px"><div class="form-label">biểu tượng</div>
+        <select class="form-input" id="save-icon">
+          <option value="💾">💾</option><option value="⚔️">⚔️</option><option value="💕">💕</option>
+          <option value="👥">👥</option><option value="💎">💎</option><option value="🗺️">🗺️</option>
+          <option value="🏰">🏰</option><option value="🎤">🎤</option><option value="🖤">🖤</option>
+          <option value="🥋">🥋</option><option value="🧙">🧙</option><option value="🎮">🎮</option>
+          <option value="📦">📦</option><option value="🌸">🌸</option><option value="🔥">🔥</option>
+        </select>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button type="button" class="btn-primary" id="btn-save">💾 Lưu vào địa phương</button>
+      <button type="button" class="btn-secondary" id="btn-export-current">📤 Xuất thành tập tin</button>
+      <label for="import-file-input" class="btn-outline import-file-label">📂 Nhập từ tập tin</label>
+      <input type="file" id="import-file-input" accept=".json">
+    </div>
+  </section>
+</div>
+
+<footer class="page-footer">
+  <div class="footer-text">MVU Studio v4.1 · <a href="index.html">Trở về trang chủ</a> · © 2026 Xiaoquan · Bất hòa 113916nb</div>
+</footer>
+
+<div class="detail-overlay" id="detail-overlay" role="dialog" aria-modal="true" aria-labelledby="detail-title-text">
+  <div class="detail-box" id="detail-box">
+    <div class="detail-header">
+      <div class="detail-header-left">
+        <div class="detail-icon" id="detail-icon"></div>
+        <div><div class="detail-title" id="detail-title-text"></div><div class="detail-author" id="detail-author"></div></div>
+      </div>
+      <button type="button" class="detail-close" id="detail-close" aria-label="đóng cửa">✕</button>
+    </div>
+    <div class="detail-body" id="detail-body-content">
+      <div id="detail-warning-wrap"></div>
+      <div class="detail-desc" id="detail-desc"></div>
+      <div class="detail-section-title">Kiểu & Nhãn</div>
+      <div class="detail-tags" id="detail-tags"></div>
+      <div class="detail-info-grid" id="detail-info-grid"></div>
+      <div id="detail-features-wrap" style="display:none">
+        <div class="detail-section-title">Yêu cầu tùy chỉnh</div>
+        <div class="detail-features" id="detail-features"></div>
+      </div>
+    </div>
+    <div class="detail-footer">
+      <button type="button" class="tmpl-btn export" id="detail-export">📤 Xuất khẩu</button>
+      <button type="button" class="tmpl-btn apply" id="detail-apply" style="padding:8px 28px;font-size:13px">✨Áp dụng tại trang chủ</button>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirm-overlay" role="alertdialog" aria-modal="true">
+  <div class="confirm-box">
+    <div class="confirm-icon">🗑️</div>
+    <div class="confirm-title">Xác nhận xóa</div>
+    <div class="confirm-msg" id="confirm-msg">Bạn có chắc chắn muốn xóa mẫu này? Hoạt động này là không thể đảo ngược.</div>
+    <div class="confirm-btns">
+      <button type="button" class="confirm-btn cancel" id="confirm-cancel">Hủy bỏ</button>
+      <button type="button" class="confirm-btn danger" id="confirm-ok">Xóa</button>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+var CONFIG_KEY='mvu-studio-config';
+var TEMPLATE_KEY='mvu-studio-templates';
+var LIKES_KEY='mvu-studio-likes';
+
+var STYLE_NAMES={minimal:'🌙 Thẻ đơn giản',ancient:'📜 Cuộn phong cách cổ xưa',portrait:'🎨 Vẽ nhân vật',nurture:'💎 Theo dõi phát triển'};
+var TAG_LABELS=['❤️ Sự thuận lợi','🎭 Bảng điều khiển NPC','😊 Trạng thái nhân vật','💚 Sức khỏe/sức chịu đựng','⚔️ Cảnh giới/Cấp độ','🌟 Cây kỹ năng','🛡️ Đeo thiết bị','👁️ Lệnh triệu tập','🎒 Ba lô/Hàng đồ','💰 Tiền vàng/tiền tệ','🕒 Thời gian trôi qua','📜 Theo dõi nhiệm vụ','🎨 Chủ đề giao diện người dùng nổi','🗺️ Hệ thống bản đồ','🏰 Lực lượng/trại','🪙 Hệ thống trung tâm thương mại','👥Bảng điều khiển đa chức năng'];
+var ALL_TAG_VALS=['Hệ thống ưu tiên (ưu tiên NPC là liên tục, lưu và tải tệp khi chuyển đổi NPC)','Bảng động NPC hiện tại (tên/nghề nghiệp/trạng thái/suy nghĩ bên trong)','Trạng thái nhân vật (đói/tâm trạng/trạng thái bất thường, v.v.)','Hệ thống sức khỏe/sức chịu đựng','Hệ thống giá trị cảnh giới/cấp độ/kinh nghiệm (bao gồm cả việc phân bổ điểm thuộc tính)','Cây kỹ năng (kỹ năng là các đối tượng lồng nhau, bao gồm các trường con cấp độ và mô tả)','Hệ thống thiết bị/mặc','Nội dung triệu tập/hợp đồng (đối tượng lồng nhau, bao gồm các trường con cấp độ/loại/trạng thái)','Ba lô/Hàng tồn kho (đối tượng phẳng có tên mặt hàng là khóa và số lượng là giá trị)','Đồng tiền vàng/hệ thống kinh tế tiền tệ','Chuyển động ngày/giờ','Theo dõi nhiệm vụ/thành tích','Giao diện người dùng thanh trạng thái nổi động (thẻ trong mờ, chuyển đổi đa chủ đề)','Hệ thống bản đồ (sử dụng z.record để ghi lại tọa độ và mô tả vị trí, một bản đồ đơn giản được nhúng vào thanh trạng thái để hiển thị vị trí hiện tại và các khu vực có thể khám phá, nhấp vào vị trí để xem cửa sổ bật lên chi tiết)','Hệ thống lực lượng/trại (quản lý công nghiệp và quản lý quân đội, tự động tổng hợp thu chi hàng tháng)','Hệ thống trung tâm mua sắm (tích hợp cửa hàng prop, sử dụng z.record để quản lý danh sách sản phẩm bao gồm tên/giá/mô tả/loại/hiệu ứng, trường cân bằng tiền tệ, theo dõi trạng thái prop đã mua, hỗ trợ vật tư tiêu hao/đạo cụ cố định/phân loại thiết bị, thanh trạng thái hiển thị nút trung tâm mua sắm và số dư tiền tệ, nhấp để mở rộng danh sách sản phẩm)','Bảng vẽ dọc nhiều ký tự (nhiều ký tự với màu chủ đề độc lập, chuyển đổi chế độ kép danh sách/chi tiết, hình đại diện nhân vật và màn hình vẽ dọc, thanh tiến trình độc lập và theo dõi trạng thái cho từng ký tự)'];
+var ALL_TAG_KEYWORDS=['Hệ thống thuận lợi','Bảng động NPC hiện tại','trạng thái nhân vật','Hệ thống sức khỏe/sức chịu đựng','Hệ thống giá trị cảnh giới/cấp độ/kinh nghiệm','Cây kỹ năng','Hệ thống thiết bị/mặc','Cơ quan triệu tập/hợp đồng','Ba lô/Hàng đồ','Đồng tiền vàng/hệ thống kinh tế tiền tệ','Chuyển động ngày/giờ','Theo dõi nhiệm vụ/thành tích','Giao diện người dùng thanh trạng thái nổi động','hệ thống bản đồ','Hệ thống lực lượng/trại','Hệ thống trung tâm thương mại','Bảng vẽ dọc nhiều ký tự'];
+
+var PRESETS=[
+  {id:'p-romance',name:'Thói quen tình yêu ở trường',icon:'💕',desc:'Thích hợp cho thẻ nhân vật lãng mạn trong khuôn viên trường và tương tác hàng ngày. Nó bao gồm hệ thống ưa thích và theo dõi trạng thái nhân vật, kết hợp với kiểu thẻ đơn giản để mang lại trải nghiệm tương tác ấm áp.',author:'chính thức',style:'minimal',tags:[0,2],features:'',downloads:2847,created:'2025-12-01'},
+  {id:'p-xuanhuan',name:'Cuộc phiêu lưu giả tưởng của việc trồng trọt bất tử',icon:'⚔️',desc:'Thích hợp cho các thẻ trường sinh, võ thuật và nhân vật giả tưởng. Hệ thống RPG hoàn chỉnh bao gồm các cấp độ cảnh giới, cây kỹ năng, kho đồ ba lô và nền kinh tế tiền tệ vàng, đồng thời được hiển thị bằng các cuộn giấy cổ.',author:'chính thức',style:'ancient',tags:[3,4,5,8,9],features:'',downloads:3521,created:'2025-12-01'},
+  {id:'p-harem',name:'kịch nhóm hậu cung',icon:'👥',desc:'Mẫu cảnh kịch hậu cung/nhóm nhiều nhân vật. Bảng nhân vật độc lập phối hợp với hệ thống theo dõi mức độ ưa thích và bảng động NPC hiển thị trạng thái nhân vật và suy nghĩ bên trong trong thời gian thực, phù hợp với kiểu bảng vẽ dọc của nhân vật.',author:'chính thức',style:'portrait',tags:[0,1,16],features:'',downloads:1932,created:'2025-12-01'},
+  {id:'p-nurture',name:'Phát triển hệ thống đào tạo',icon:'💎',desc:'Mẫu chuyên dùng cho thẻ nhân vật loại phát triển/huấn luyện. Theo dõi tiến độ đa chiều, tích hợp hệ thống trung tâm thương mại, hệ thống sân khấu. Kết hợp với phong cách theo dõi sự phát triển, nó thể hiện một màn hình hiển thị tiến độ chuyên nghiệp.',author:'chính thức',style:'nurture',tags:[0,2,9,15],features:'',downloads:2156,created:'2025-12-01'},
+  {id:'p-openworld',name:'Khám phá thế giới mở',icon:'🗺️',desc:'Mẫu phiêu lưu khám phá bản đồ lớn. Hệ thống RPG hoàn chỉnh + hệ thống bản đồ + trại lực lượng + theo dõi nhiệm vụ, phù hợp với thẻ nhân vật sandbox yêu cầu cơ chế khám phá và thế giới quan phong phú.',author:'chính thức',style:'minimal',tags:[3,4,5,6,8,9,10,11,13,14],features:'',downloads:1678,created:'2025-12-01'},
+  {id:'p-business',name:'mô phỏng kinh doanh',icon:'🏰',desc:'Mẫu quản lý cửa hàng/ảnh hưởng. Nó bao gồm hệ thống tiền tệ vàng, hệ thống trung tâm mua sắm, quản lý trại lực lượng và cơ chế chuyển giao thời gian, phù hợp với các thẻ nhân vật yêu cầu hệ thống kinh tế.',author:'chính thức',style:'minimal',tags:[9,10,14,15],features:'báo cáo thu chi hàng tháng',downloads:987,created:'2025-12-01'}
+];
+
+var COMMUNITY=[
+  {id:'c-gothic',name:'Goth yandere bóng tối',icon:'🖤',desc:'Cấu hình thẻ nhân vật phong cách tối. Ưu điểm + trạng thái nhân vật + hệ thống cây kỹ năng ba chiều, với phong cách chủ đề tối đơn giản. Tăng hệ thống giá trị tinh thần/tinh thần để theo dõi sự thay đổi trạng thái tinh thần của nhân vật.',author:'Người đi đêm',style:'minimal',tags:[0,2,5],features:'Hệ thống giá trị tinh thần/sự tỉnh táo',downloads:632,created:'2026-01-15'},
+  {id:'c-wuxia',name:'Bộ võ thuật Jianghu hoàn chỉnh',icon:'🥋',desc:'Việc xây dựng một thế giới quan võ thuật hoàn chỉnh. Phong cách cuộn cổ xưa được kết hợp với hệ thống RPG toàn diện, bao gồm cấp độ cảnh giới, cây kỹ năng, trang bị, vật phẩm ba lô, tiền vàng và hệ thống bản đồ cũng như hệ thống danh tiếng giáo phái.',author:'Trái tim của thanh kiếm trở về cát bụi',style:'ancient',tags:[0,3,4,5,6,8,9,13],features:'hệ thống danh tiếng giáo phái',downloads:1456,created:'2026-01-20'},
+  {id:'c-idol',name:'kế hoạch phát triển thần tượng',icon:'🎤',desc:'Cấu hình phát triển thần tượng. Multi-role panels display idol members, favorability tracks fan relationships, and the mall system unlocks clothing and props. Phát triển một phong cách theo dõi để trình bày tiến độ đào tạo của bạn.',author:'nhà sản xuất ánh sao',style:'nurture',tags:[0,1,2,15,16],features:'Theo dõi số lượng người hâm mộ, xếp hạng hiệu suất',downloads:823,created:'2026-02-05'}
+];
+
+function escapeHtml(s){if(typeof s!=='string')return'';var map={'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'};return s.replace(/[&<>"']/g,function(c){return map[c];});}
+function $(id){return document.getElementById(id);}
+function debounce(fn,ms){var t;return function(){var self=this,args=arguments;clearTimeout(t);t=setTimeout(function(){fn.apply(self,args);},ms);};}
+
+function showToast(type,title,msg,dur){
+  dur=dur||4000;var c=$('toast-container');var icons={error:'❌',success:'✅',warning:'⚠️',info:'ℹ️'};
+  var t=document.createElement('div');t.className='toast '+type;
+  t.innerHTML='<span class="toast-icon">'+(icons[type]||'ℹ️')+'</span><div class="toast-content"><div class="toast-title">'+escapeHtml(title)+'</div>'+(msg?'<div class="toast-msg">'+escapeHtml(msg)+'</div>':'')+'</div><button class="toast-close" type="button" aria-label="đóng cửa">✕</button>';
+  c.appendChild(t);function rm(){if(t.parentNode){t.classList.add('removing');t.addEventListener('animationend',function(){t.remove();},{once:true});setTimeout(function(){if(t.parentNode)t.remove();},350);}}
+  t.querySelector('.toast-close').onclick=rm;if(dur>0)setTimeout(rm,dur);while(c.children.length>5)c.firstChild.remove();
+}
+
+function getUserTemplates(){try{var r=localStorage.getItem(TEMPLATE_KEY);return r?JSON.parse(r):[];}catch(e){return[];}}
+function saveUserTemplates(list){try{localStorage.setItem(TEMPLATE_KEY,JSON.stringify(list));}catch(e){}}
+function getMainConfig(){try{var r=localStorage.getItem(CONFIG_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function saveMainConfig(cfg){try{localStorage.setItem(CONFIG_KEY,JSON.stringify(cfg));}catch(e){}}
+function getLikes(){try{var r=localStorage.getItem(LIKES_KEY);return r?JSON.parse(r):{};}catch(e){return{};}}
+function saveLikes(l){try{localStorage.setItem(LIKES_KEY,JSON.stringify(l));}catch(e){}}
+
+function collectCurrentConfig(){var cfg=getMainConfig();if(!cfg)return{style:'minimal',tags:[0,8],features:''};var tagIndices=[];if(cfg.selectedTags&&Array.isArray(cfg.selectedTags)){cfg.selectedTags.forEach(function(val){for(var i=0;i<ALL_TAG_KEYWORDS.length;i++){if(val.indexOf(ALL_TAG_KEYWORDS[i])!==-1||ALL_TAG_KEYWORDS[i].indexOf(val)!==-1){tagIndices.push(i);break;}}});}return{style:cfg.selectedStyle||'minimal',tags:tagIndices,features:cfg.userFeatures||''};}
+
+function applyTemplate(tmpl){var cfg=getMainConfig()||{};cfg.selectedStyle=tmpl.style||'minimal';var selected=[];if(tmpl.tags&&Array.isArray(tmpl.tags)){tmpl.tags.forEach(function(i){if(ALL_TAG_VALS[i])selected.push(ALL_TAG_VALS[i]);});}cfg.selectedTags=selected;if(tmpl.features)cfg.userFeatures=tmpl.features;saveMainConfig(cfg);showToast('success','✨ Đã áp dụng mẫu','Cấu hình đã được ghi vào trang chủ. Bạn có thể thấy những thay đổi bằng cách quay lại trang chủ.',5000);}
+
+var currentTab='preset',currentFilter='all',currentSearch='',currentSort='default',pendingDeleteId=null,detailTmpl=null,detailSource='';
+
+function getSource(tab){if(tab==='preset')return PRESETS;if(tab==='community')return COMMUNITY;return getUserTemplates();}
+function matchFilter(tmpl){if(currentFilter!=='all'&&tmpl.style!==currentFilter)return false;if(currentSearch){var q=currentSearch.toLowerCase();var haystack=((tmpl.name||'')+(tmpl.desc||'')+(tmpl.author||'')+(tmpl.features||'')).toLowerCase();if(tmpl.tags)tmpl.tags.forEach(function(i){if(TAG_LABELS[i])haystack+=TAG_LABELS[i].toLowerCase();});if(haystack.indexOf(q)===-1)return false;}return true;}
+function sortList(list){var sorted=list.slice();switch(currentSort){case'downloads':sorted.sort(function(a,b){return(b.downloads||0)-(a.downloads||0);});break;case'newest':sorted.sort(function(a,b){return new Date(b.created||0)-new Date(a.created||0);});break;case'name':sorted.sort(function(a,b){return(a.name||'').localeCompare(b.name||'','zh-CN');});break;}return sorted;}
+
+function renderGrid(){
+  var list=getSource(currentTab),filtered=list.filter(matchFilter),sorted=sortList(filtered),grid=$('tmpl-grid'),likes=getLikes();
+  $('count-preset').textContent=PRESETS.length;$('count-community').textContent=COMMUNITY.length;$('count-mine').textContent=getUserTemplates().length;
+  if(sorted.length===0){var emptyMsg=currentTab==='mine'?'Chưa cócứumẫu nào<br><span style="font-size:12px;margin-top:8px;display:block;color:var(--text3)">Sau khi điền thông tin bên dưới, nhấp vào "Lưu vào địa phương"</span>':'Không tìm thấy mẫu phù hợp';grid.innerHTML='<div class="empty-state"><div class="empty-icon">📭</div><div class="empty-title">'+(currentSearch?'Không tìm thấy kết quả':'Chưa có mẫu')+'</div><div class="empty-desc">'+emptyMsg+'</div></div>';return;}
+  grid.innerHTML=sorted.map(function(tmpl){
+    var badge='';if(currentTab==='preset')badge='<span class="tmpl-author-badge official">chính thức</span>';else if(currentTab==='community')badge='<span class="tmpl-author-badge community">Cộng đồng</span>';else badge='<span class="tmpl-author-badge mine">của tôi</span>';
+    var tagHtml='<span class="tmpl-tag style-tag">'+escapeHtml(STYLE_NAMES[tmpl.style]||tmpl.style)+'</span>';if(tmpl.tags){var showTags=tmpl.tags.slice(0,3);showTags.forEach(function(i){if(TAG_LABELS[i])tagHtml+='<span class="tmpl-tag">'+escapeHtml(TAG_LABELS[i])+'</span>';});if(tmpl.tags.length>3)tagHtml+='<span class="tmpl-tag">+'+(tmpl.tags.length-3)+'</span>';}
+    var isLiked=!!likes[tmpl.id],likeCount=(tmpl.likes||0)+(isLiked?1:0);
+    var likeHtml='<button type="button" class="tmpl-like-btn'+(isLiked?' liked':'')+'" data-action="like" data-id="'+escapeHtml(tmpl.id)+'"><span class="like-icon">'+(isLiked?'♥':'♡')+'</span><span class="like-count">'+likeCount+'</span></button>';
+    var metaHtml='';if(tmpl.downloads)metaHtml+='⬇ '+parseInt(tmpl.downloads,10);if(tmpl.created)metaHtml+=(metaHtml?' · ':'')+escapeHtml(String(tmpl.created));
+    var actionsHtml='<button type="button" class="tmpl-btn apply" data-action="apply" data-id="'+escapeHtml(tmpl.id)+'">✨ Ứng dụng</button>';actionsHtml+='<button type="button" class="tmpl-btn export" data-action="export" data-id="'+escapeHtml(tmpl.id)+'">📤</button>';if(currentTab==='mine')actionsHtml+='<button type="button" class="tmpl-btn delete" data-action="delete" data-id="'+escapeHtml(tmpl.id)+'">🗑️</button>';
+    return'<div class="tmpl-card'+(currentTab==='mine'?' user-card':'')+'" data-id="'+escapeHtml(tmpl.id)+'" role="listitem"><div class="tmpl-card-top" data-action="detail" data-id="'+escapeHtml(tmpl.id)+'"><span class="tmpl-icon">'+escapeHtml(tmpl.icon||'📦')+'</span><div class="tmpl-name">'+escapeHtml(tmpl.name)+'</div><div class="tmpl-author">'+badge+' '+escapeHtml(tmpl.author||'')+'</div><div class="tmpl-desc">'+escapeHtml(tmpl.desc||'')+'</div><div class="tmpl-tags">'+tagHtml+'</div></div><div class="tmpl-card-bottom"><div class="tmpl-meta">'+likeHtml+(metaHtml?' <span>'+metaHtml+'</span>':'')+'</div><div class="tmpl-actions">'+actionsHtml+'</div></div></div>';
+  }).join('');
+}
+
+function findTmplById(id){var all=[].concat(PRESETS,COMMUNITY,getUserTemplates());for(var i=0;i<all.length;i++){if(all[i].id===id)return all[i];}return null;}
+function findTmplSource(id){for(var i=0;i<PRESETS.length;i++){if(PRESETS[i].id===id)return'preset';}for(var j=0;j<COMMUNITY.length;j++){if(COMMUNITY[j].id===id)return'community';}var mine=getUserTemplates();for(var k=0;k<mine.length;k++){if(mine[k].id===id)return'mine';}return'unknown';}
+
+function showDetail(tmpl,source){
+  detailTmpl=tmpl;detailSource=source;$('detail-icon').textContent=tmpl.icon||'📦';$('detail-title-text').textContent=tmpl.name||'Vô danh';
+  var authorBadge='';if(source==='preset')authorBadge=' <span class="tmpl-author-badge official">chính thức</span>';else if(source==='community')authorBadge=' <span class="tmpl-author-badge community">Cộng đồng</span>';else authorBadge=' <span class="tmpl-author-badge mine">của tôi</span>';
+  $('detail-author').innerHTML=escapeHtml(tmpl.author||'không rõ')+authorBadge;$('detail-desc').textContent=tmpl.desc||'không cómô tả';
+  var warningWrap=$('detail-warning-wrap');warningWrap.innerHTML='';var currentConfig=getMainConfig();
+  if(currentConfig&&currentConfig.selectedStyle&&currentConfig.selectedStyle!==tmpl.style){warningWrap.innerHTML='<div class="detail-warning">⚠️ Kiểu của mẫu này ('+escapeHtml(STYLE_NAMES[tmpl.style]||tmpl.style)+') khác với kiểu hiện được chọn của bạn ('+escapeHtml(STYLE_NAMES[currentConfig.selectedStyle]||currentConfig.selectedStyle)+'). Cài đặt kiểu của bạn sẽ được chuyển đổi sau khi ứng dụng.</div>';}
+  var tagHtml='<span class="detail-tag style-tag">'+escapeHtml(STYLE_NAMES[tmpl.style]||tmpl.style)+'</span>';if(tmpl.tags){tmpl.tags.forEach(function(i){if(TAG_LABELS[i])tagHtml+='<span class="detail-tag">'+escapeHtml(TAG_LABELS[i])+'</span>';});}$('detail-tags').innerHTML=tagHtml;
+  var infoHtml='<div class="detail-info-item"><div class="detail-info-val">'+(tmpl.tags?tmpl.tags.length:0)+'</div><div class="detail-info-label">Thẻ hàm</div></div><div class="detail-info-item"><div class="detail-info-val">'+escapeHtml(STYLE_NAMES[tmpl.style]||'Không xác định')+'</div><div class="detail-info-label">phong cách trực quan</div></div>';
+  if(tmpl.downloads)infoHtml+='<div class="detail-info-item"><div class="detail-info-val">'+parseInt(tmpl.downloads,10)+'</div><div class="detail-info-label">Số lần sử dụng</div></div>';
+  if(tmpl.created)infoHtml+='<div class="detail-info-item"><div class="detail-info-val">'+escapeHtml(String(tmpl.created))+'</div><div class="detail-info-label">Ngày tạo</div></div>';
+  $('detail-info-grid').innerHTML=infoHtml;
+  if(tmpl.features){$('detail-features-wrap').style.display='block';$('detail-features').textContent=tmpl.features;}else{$('detail-features-wrap').style.display='none';}
+  $('detail-overlay').classList.add('active');
+}
+function closeDetail(){$('detail-overlay').classList.remove('active');detailTmpl=null;}
+
+function exportTemplate(tmpl){var data={_type:'mvu-studio-template',_version:1,name:tmpl.name,icon:tmpl.icon||'📦',desc:tmpl.desc||'',author:tmpl.author||'',style:tmpl.style,tags:tmpl.tags||[],features:tmpl.features||'',created:tmpl.created||new Date().toLocaleDateString('zh-CN')};var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Mẫu MVU-'+(tmpl.name||'template')+'.json';document.body.appendChild(a);a.click();a.remove();showToast('success','Đã xuất mẫu','"'+tmpl.name+'"');}
+
+function encodeShareConfig(){var cfg=collectCurrentConfig();var obj={v:1,s:cfg.style,t:cfg.tags};if(cfg.features)obj.f=cfg.features;if(cfg.style==='minimal')delete obj.s;var json=JSON.stringify(obj);return btoa(unescape(encodeURIComponent(json))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function decodeShareCode(code){try{if(code.indexOf('?')!==-1){var u=new URL(code,location.href);code=u.searchParams.get('share')||'';}if(!code)return null;var b64=code.replace(/-/g,'+').replace(/_/g,'/');while(b64.length%4)b64+='=';return JSON.parse(decodeURIComponent(escape(atob(b64))));}catch(e){return null;}}
+function applyShareCode(obj){if(!obj||obj.v!==1){showToast('error','Mã chia sẻ không hợp lệ');return false;}var cfg=getMainConfig()||{};if(obj.s)cfg.selectedStyle=obj.s;if(obj.t&&Array.isArray(obj.t)){var selected=[];obj.t.forEach(function(i){if(ALL_TAG_VALS[i])selected.push(ALL_TAG_VALS[i]);});cfg.selectedTags=selected;}if(obj.f)cfg.userFeatures=obj.f;saveMainConfig(cfg);showToast('success','Cấu hình chia sẻ đã được nhập','Quay lại trang chủ để xem thay đổi',5000);return true;}
+
+$('tabs-bar').addEventListener('click',function(e){var btn=e.target.closest('.tab-btn');if(!btn)return;document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');b.setAttribute('aria-selected','false');});btn.classList.add('active');btn.setAttribute('aria-selected','true');currentTab=btn.dataset.tab;renderGrid();});
+$('filter-pills').addEventListener('click',function(e){var pill=e.target.closest('.filter-pill');if(!pill)return;document.querySelectorAll('.filter-pill').forEach(function(p){p.classList.remove('active');});pill.classList.add('active');currentFilter=pill.dataset.filter;renderGrid();});
+$('sort-select').addEventListener('change',function(){currentSort=this.value;renderGrid();});
+$('search-input').addEventListener('input',debounce(function(){currentSearch=this.value.trim();renderGrid();},200));
+
+$('tmpl-grid').addEventListener('click',function(e){
+  var btn=e.target.closest('[data-action]');if(!btn)return;var action=btn.dataset.action,id=btn.dataset.id,tmpl=findTmplById(id);if(!tmpl)return;
+  if(action==='apply')applyTemplate(tmpl);
+  else if(action==='export')exportTemplate(tmpl);
+  else if(action==='delete'){pendingDeleteId=id;$('confirm-msg').textContent='Bạn có chắc chắn muốn xóa "'+tmpl.name+'"?" Hoạt động này là không thể đảo ngược.';$('confirm-overlay').classList.add('active');}
+  else if(action==='detail')showDetail(tmpl,findTmplSource(id));
+  else if(action==='like'){var likes=getLikes();if(likes[id])delete likes[id];else likes[id]=true;saveLikes(likes);renderGrid();}
+});
+
+$('confirm-ok').addEventListener('click',function(){if(pendingDeleteId){var list=getUserTemplates();var idx=-1;for(var i=0;i<list.length;i++){if(list[i].id===pendingDeleteId){idx=i;break;}}if(idx>=0){var name=list[idx].name;list.splice(idx,1);saveUserTemplates(list);showToast('success','Đã xóa mẫu','"'+name+'" Đã xóa');renderGrid();}}pendingDeleteId=null;$('confirm-overlay').classList.remove('active');});
+$('confirm-cancel').addEventListener('click',function(){pendingDeleteId=null;$('confirm-overlay').classList.remove('active');});
+$('confirm-overlay').addEventListener('click',function(e){if(e.target===this){pendingDeleteId=null;this.classList.remove('active');}});
+$('detail-close').addEventListener('click',closeDetail);
+$('detail-overlay').addEventListener('click',function(e){if(e.target===this)closeDetail();});
+$('detail-apply').addEventListener('click',function(){if(detailTmpl){applyTemplate(detailTmpl);closeDetail();}});
+$('detail-export').addEventListener('click',function(){if(detailTmpl){exportTemplate(detailTmpl);closeDetail();}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){if($('confirm-overlay').classList.contains('active')){pendingDeleteId=null;$('confirm-overlay').classList.remove('active');}else if($('detail-overlay').classList.contains('active'))closeDetail();}});
+
+$('btn-save').addEventListener('click',function(){
+  var name=$('save-name').value.trim();if(!name){showToast('warning','Vui lòng nhập tên mẫu');$('save-name').focus();return;}
+  var cfg=collectCurrentConfig();var tmpl={id:'user-'+Date.now()+'-'+Math.random().toString(36).substr(2,4),name:name,icon:$('save-icon').value||'💾',desc:$('save-desc').value.trim()||'Mẫu do người dùng xác định',author:$('save-author').value.trim()||'người dùng ẩn danh',style:cfg.style,tags:cfg.tags,features:cfg.features,created:new Date().toLocaleDateString('zh-CN'),likes:0};
+  var list=getUserTemplates();list.unshift(tmpl);saveUserTemplates(list);
+  document.querySelectorAll('.tab-btn').forEach(function(b){var isMine=b.dataset.tab==='mine';b.classList.toggle('active',isMine);b.setAttribute('aria-selected',isMine?'true':'false');});currentTab='mine';renderGrid();
+  $('save-name').value='';$('save-desc').value='';showToast('success','✅ Đã lưu mẫu','"'+name+'" đã lưuvào máy');
+});
+
+$('btn-export-current').addEventListener('click',function(){
+  var name=$('save-name').value.trim()||'cấu hình của tôi';var cfg=collectCurrentConfig();
+  var data={_type:'mvu-studio-template',_version:1,name:name,icon:$('save-icon').value||'📤',desc:$('save-desc').value.trim()||'',author:$('save-author').value.trim()||'Xuất người dùng',style:cfg.style,tags:cfg.tags,features:cfg.features,created:new Date().toISOString()};
+  var blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Mẫu MVU-'+name+'.json';document.body.appendChild(a);a.click();a.remove();showToast('success','Mẫu đã được xuất sang một tập tin');
+});
+
+$('import-file-input').addEventListener('change',function(e){
+  var file=e.target.files[0];if(!file)return;var reader=new FileReader();
+  reader.onload=function(ev){try{var data=JSON.parse(ev.target.result);if(!data.style&&!data.tags&&!data._type)throw new Error('Không phải là tệp mẫu hợp lệ');
+  var tmpl={id:'import-'+Date.now()+'-'+Math.random().toString(36).substr(2,4),name:data.name||file.name.replace('.json',''),icon:data.icon||'📂',desc:data.desc||'Mẫu đã nhập',author:data.author||'nhập khẩu',style:data.style||'minimal',tags:data.tags||[],features:data.features||'',created:new Date().toLocaleDateString('zh-CN'),likes:0};
+  var list=getUserTemplates();list.unshift(tmpl);saveUserTemplates(list);
+  document.querySelectorAll('.tab-btn').forEach(function(b){var isMine=b.dataset.tab==='mine';b.classList.toggle('active',isMine);b.setAttribute('aria-selected',isMine?'true':'false');});currentTab='mine';renderGrid();
+  showToast('success','Đã nhập mẫu thành công','"'+tmpl.name+'" Đã thêm vàocủa tôimẫu');}catch(err){showToast('error','Nhập không thành công',err.message);}};reader.readAsText(file);this.value='';
+});
+
+$('btn-gen-share').addEventListener('click',function(){var code=encodeShareConfig();var basePath=location.pathname.replace(/[^\/]*$/,'');var url=location.origin+basePath+'index.html?share='+code;var el=$('share-url');el.textContent=url;el.classList.remove('placeholder');$('btn-copy-share').style.display='inline-flex';showToast('success','Liên kết chia sẻ đã được tạo','Liên kết không chứa Khóa API và an toàn để chia sẻ.');});
+$('btn-copy-share').addEventListener('click',function(){var text=$('share-url').textContent;var btn=this;navigator.clipboard.writeText(text).then(function(){btn.textContent='✅Sao chép';setTimeout(function(){btn.textContent='📋 Sao chép';},2000);}).catch(function(){var ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();btn.textContent='✅Sao chép';setTimeout(function(){btn.textContent='📋 Sao chép';},2000);});});
+$('btn-toggle-import').addEventListener('click',function(){var box=$('share-import-box');box.classList.toggle('visible');if(box.classList.contains('visible'))$('share-import-input').focus();});
+$('btn-do-import').addEventListener('click',function(){var input=$('share-import-input').value.trim();if(!input){showToast('warning','Vui lòng dán liên kết hoặc mã chia sẻ');return;}var obj=decodeShareCode(input);if(obj){applyShareCode(obj);$('share-import-box').classList.remove('visible');$('share-import-input').value='';}else{showToast('error','Phân tích cú pháp không thành công','Vui lòng kiểm tra link hoặc mã chia sẻ đã đầy đủ và chính xác chưa');}});
+
+(function(){var params=new URLSearchParams(location.search);var code=params.get('share');if(code){var obj=decodeShareCode(code);if(obj){applyShareCode(obj);history.replaceState({},'',location.pathname);}}})();
+
+renderGrid();
+
+/* ★ Mới: Mã heartbeat - Duy trì đếm trực tuyến */
+(function(){function hb(){fetch('online.php?_t='+Date.now()).catch(function(){});}hb();setInterval(hb,5000);})();
+</script>
+</body>
+</html>
